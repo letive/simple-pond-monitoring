@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-import requests
 
 from lib.revenue import aggregation
 from lib.plot import Line
@@ -50,7 +49,7 @@ def body_weight_section():
 
             option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
             st_echarts(options=option2)
-            
+
             option3 = Line("Revenue", index, [data["potential_revenue"], data["realized_revenue"]], 
             ["Potential Revenue", "Realized Revenue"]).plot()
             st_echarts(options=option3)
