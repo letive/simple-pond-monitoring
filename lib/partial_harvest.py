@@ -75,7 +75,7 @@ class PartialHarvest:
         else:
             formula3 = feed_formula3("data/data-feeding-formula-3.csv", ",")
             if self.t < self.docfinal:
-                return formula3[self.t] * self.area / 1000 * (1+0.2)
+                return formula3[self.t] * self.area / 1000 * (1+0.2) * fc
             else:
                 return 0
 
