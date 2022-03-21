@@ -38,9 +38,13 @@ class SubCost:
     def labor_cost(self, labor_cost):
         return labor_cost if self.t < self.final_doc else 0
 
+# def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+#         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
+#         labor_cost, bonus, h, pl, sr, r, fc, formula):
+
 def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
-        labor_cost, bonus, h, pl, sr, r, fc, formula):
+        labor_cost, bonus, h, r, fc, formula):
 
     energy = []
     probiotics = []
@@ -65,7 +69,8 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
         obj = ph(t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
             docpartial1, docpartial2, docpartial3, docfinal)
 
-        hv = obj.harvest_cost(h, pl, sr)
+        # hv = obj.harvest_cost(h, pl, sr)
+        hv = obj.harvest_cost(h)
         harvest.append(hv[0])
         feeds.append(obj.feed_cost(fc, formula, r))
 
@@ -95,8 +100,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
     ### get profit for each time
     cost_t = [data[:, :t].sum() for t in times]
     cum_revenue = np.cumsum(realized_revenue)
-    cum_cost = np.cumsum(cost_t)
-    profit_t = cum_revenue - cum_cost
+    profit_t = cum_revenue - cost_t
 
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
@@ -115,7 +119,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
         },
         "data_profit": {
             "revenue": cum_revenue.tolist(),
-            "cost": cum_cost.tolist(),
+            "cost": cost_t,
             "profit": profit_t.tolist()
         }
     }

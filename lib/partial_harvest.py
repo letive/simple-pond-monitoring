@@ -24,12 +24,20 @@ class PartialHarvest:
     def wt(self):
         return body_weight(self.wn, self.w0, self.alpha, self.t0, self.t)
 
+    # def population(self):
+    #     ph1 = self.partial1 * heaviside_step(self.t-self.docpartial1)
+    #     ph2 = self.partial2 * heaviside_step(self.t-self.docpartial2)
+    #     ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3)
+    #     final = heaviside_step(self.t-self.docfinal)
+    #     result = self.n0 * (np.exp(-self.m*(self.t-self.t0)) - ph1 - ph2 - ph3 - final)
+    #     return result
+
     def population(self):
         ph1 = self.partial1 * heaviside_step(self.t-self.docpartial1)
         ph2 = self.partial2 * heaviside_step(self.t-self.docpartial2)
         ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3)
-        final = heaviside_step(self.t-self.docfinal)
-        result = self.n0 * (np.exp(-self.m*(self.t-self.t0)) - ph1 - ph2 - ph3 - final)
+        # final = heaviside_step(self.t-self.docfinal)
+        result = self.n0 * np.exp(-self.m*(self.t)) - ph1 - ph2 - ph3
         return result
 
     def biomassa(self):
@@ -39,19 +47,43 @@ class PartialHarvest:
     def biomassa_constant(self):
         return self.area * self.wt() * self.n0
 
-    def harvest_cost(self, h, pl, sr):
+    # def harvest_cost(self, h, pl, sr):
+    #     """
+    #     h: harvest cost per kg
+    #     pl: intial postlarva 
+    #     sr: survival rate
+    #     """
+        
+    #     doc = [self.docpartial1, self.docpartial2, self.docpartial3, self.docfinal]
+    #     plharvest1 = pl_harvest(pl, sr, self.partial1)
+    #     plharvest2 = pl_harvest(pl, sr, self.partial2)
+    #     plharvest3 = pl_harvest(pl, sr, self.partial3)
+    #     plfinal = pl_harvest(pl, sr, 1 - self.partial1 - self.partial2 - self.partial3)
+    #     plharvest = [plharvest1, plharvest2, plharvest3, plfinal]
+    #     status = False
+    #     for i in enumerate(doc):
+    #         if self.t == i[1]:
+    #             result = plharvest[i[0]]*h*self.wt()/1000 # dibagi 1000 untuk mengubahnya menjadi kg
+    #             status = True
+    #             break
+
+    #     if not status:
+    #         result = 0
+
+    #     return result, plharvest
+
+    def harvest_cost(self, h):
         """
         h: harvest cost per kg
         pl: intial postlarva 
         sr: survival rate
         """
         
-        doc = [self.docpartial1, self.docpartial2, self.docpartial3, self.docfinal]
-        plharvest1 = pl_harvest(pl, sr, self.partial1)
-        plharvest2 = pl_harvest(pl, sr, self.partial2)
-        plharvest3 = pl_harvest(pl, sr, self.partial3)
-        plfinal = pl_harvest(pl, sr, 1 - self.partial1 - self.partial2 - self.partial3)
-        plharvest = [plharvest1, plharvest2, plharvest3, plfinal]
+        doc = [self.docpartial1, self.docpartial2, self.docpartial3]
+        ph1 = self.partial1 * heaviside_step(self.t-self.docpartial1)
+        ph2 = self.partial2 * heaviside_step(self.t-self.docpartial2)
+        ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3) 
+        plharvest = [ph1, ph2, ph3]
         status = False
         for i in enumerate(doc):
             if self.t == i[1]:

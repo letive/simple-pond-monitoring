@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.interpolate import CubicSpline
 
 def heaviside_step(x):
-    return np.heaviside([x], 0)[0]
+    return np.heaviside([x], 1)[0]
 
 def pl_harvest(init_pl, sr, partial_rate):
     """

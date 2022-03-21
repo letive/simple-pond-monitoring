@@ -26,7 +26,6 @@ def mortality_rate(sr, T):
     else:
         return -1*np.log10(sr)/T
         
-
 def dynamic_poulation(n, n0, sr, T):
     partial_harvest = random_harvest(n, n0*sr)
     harvest_time = random_t_harvest(n)
@@ -40,7 +39,7 @@ def dynamic_poulation(n, n0, sr, T):
             for x in enumerate(harvest_time):
                 if t >= x[1]:
                     partial.append(partial_harvest[x[0]]/n0)
-            nt.append(n0*(np.exp(-1*m*t - sum(partial))))
+            nt.append(n0*(np.exp(-1*m*t) - sum(partial)))
 
     if harvest_time[-1] < T:
         index = list(range(harvest_time[-1]+1))
