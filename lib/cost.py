@@ -42,7 +42,7 @@ class SubCost:
 #         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
 #         labor_cost, bonus, h, pl, sr, r, fc, formula):
 
-def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial,
         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
         labor_cost, bonus, h, r, fc, formula):
 
@@ -66,7 +66,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
         others.append(sub_cost.other_cost(o))
         labor.append(sub_cost.labor_cost(labor_cost))
 
-        obj = ph(t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+        obj = ph(t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial,
             docpartial1, docpartial2, docpartial3, docfinal)
 
         # hv = obj.harvest_cost(h, pl, sr)

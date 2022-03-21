@@ -3,6 +3,7 @@ import numpy as np
 
 class PartialHarvest:
     def __init__(self, t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+            finalpartial,
             docpartial1, docpartial2, docpartial3, docfinal) -> None:
 
         self.t0 = t0
@@ -16,6 +17,7 @@ class PartialHarvest:
         self.partial1 = partial1
         self.partial2 = partial2
         self.partial3 = partial3
+        self.finalpartial = finalpartial
         self.docpartial1 = docpartial1
         self.docpartial2 = docpartial2
         self.docpartial3 = docpartial3
@@ -82,8 +84,9 @@ class PartialHarvest:
         doc = [self.docpartial1, self.docpartial2, self.docpartial3]
         ph1 = self.partial1 * heaviside_step(self.t-self.docpartial1)
         ph2 = self.partial2 * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3) 
-        plharvest = [ph1, ph2, ph3]
+        ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3)
+        ph4 = self.finalpartial * heaviside_step(self.t-self.docfinal) 
+        plharvest = [ph1, ph2, ph3, ph4]
         status = False
         for i in enumerate(doc):
             if self.t == i[1]:

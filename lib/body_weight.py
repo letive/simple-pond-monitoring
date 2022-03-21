@@ -33,12 +33,13 @@ def body_weight_section():
         with st.expander("Partial Harvest"):
             partial1 = st.number_input("partial1", value=30)
             partial2 = st.number_input("partial2", value=80)
-            partial3 = st.number_input("partial3", value=120)
+            partial3 = st.number_input("partial3", value=100)
+            finalpartial = st.number_input("final partial", value=120)
             
-            docpartial1 = st.number_input("doc partial 1", value=60)
-            docpartial2 = st.number_input("doc partial 2", value=80)
-            docpartial3 = st.number_input("doc partial 3", value=100)
-            docfinal = st.number_input("doc final", value=120)
+            docpartial1 = int(st.number_input("doc partial 1", value=60))
+            docpartial2 = int(st.number_input("doc partial 2", value=80))
+            docpartial3 = int(st.number_input("doc partial 3", value=100))
+            docfinal = int(st.number_input("doc final", value=120))
 
         with st.expander("Costing Params"):
             e = st.number_input("energy day cost", value=3.14)
@@ -56,13 +57,13 @@ def body_weight_section():
     submit = st.button("submit")
     
     if submit:
-        data = aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, docpartial1, docpartial2, docpartial3, docfinal)
+        data = aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial, docpartial1, docpartial2, docpartial3, docfinal)
         index = [t for t in range(t0, T+1)]
 
         option = Line("Individual weight in gr", index, [data["body_weight"]], ["Wt"]).plot()
         st_echarts(options=option)
 
-        if partial1+partial2+partial3 == round(n0 * sr):
+        if partial1+partial2+partial3+finalpartial == round(n0 * sr):
             option1 = Line("Population in PL/m2", index, [data["population"]], ["Population"]).plot()
             st_echarts(options=option1)
             option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
@@ -71,7 +72,7 @@ def body_weight_section():
             ["Realized Revenue", "Potential Revenue"]).plot()
             st_echarts(options=option3)
 
-            data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+            data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial,
                 docpartial1, docpartial2, docpartial3, docfinal, e, p, o, labor, bonus, 
                 h, r, fc, int(formula))
 
