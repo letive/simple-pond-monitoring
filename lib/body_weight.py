@@ -19,7 +19,8 @@ def body_weight_section():
         n0 = st.number_input("n0", value=250)
         T = st.number_input("T", value=80)
     with col2:
-        st.write("")
+        st.latex("")
+        st.metric("Didapati bahwa n0 * SR", round(sr*n0))
         with st.expander("growth params"):
             area = st.number_input("area", value=314)
             alpha = st.number_input("alpha (shrimp growth rate)", value=0.013)
@@ -33,7 +34,7 @@ def body_weight_section():
         with st.expander("Partial Harvest"):
             partial1 = st.number_input("partial1", value=30)
             partial2 = st.number_input("partial2", value=80)
-            partial3 = st.number_input("partial3", value=100)
+            partial3 = st.number_input("partial3", value=0)
             finalpartial = st.number_input("final partial", value=120)
             
             docpartial1 = int(st.number_input("doc partial 1", value=60))
@@ -69,7 +70,7 @@ def body_weight_section():
             option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
             st_echarts(options=option2)
             option3 = Line("Revenue", index, [data["realized_revenue"], data["potential_revenue"]], 
-            ["Realized Revenue", "Potential Revenue"]).plot()
+            ["Realized Revenue", "Potential Revenue"], True).plot()
             st_echarts(options=option3)
 
             data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial,
