@@ -18,8 +18,6 @@ def body_weight_section():
         sr = st.number_input("survival rate", value=0.92)
         n0 = st.number_input("n0", value=250)
         T = st.number_input("T", value=80)
-        
-        # m = st.number_input("m", value=0.0014)
     with col2:
         st.write("")
         with st.expander("growth params"):
@@ -46,24 +44,16 @@ def body_weight_section():
             e = st.number_input("energy day cost", value=3.14)
             p = st.number_input("daily probiotics", value=109900)
             o = st.number_input("others cost", value=30000)
-
             labor = st.number_input("labor cost", value=75000)
             bonus = st.number_input("bonus", value=2000)
-
             h = st.number_input("harvest cost per kg", value=1000)
-            # pl = st.number_input("Initial PL", value=78500)
-            # sr = st.number_input("survival rate", value=0.92)
-
             r = st.number_input("feeding rate", value=0.037)
             fc = st.number_input("feeding price", value=16000)
-
             formula = st.selectbox("formula", (1, 2))
 
         m = -np.log10(sr)/T
 
     submit = st.button("submit")
-
-    # col4, col5 = st.columns(2)
     
     if submit:
         data = aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, docpartial1, docpartial2, docpartial3, docfinal)
