@@ -38,10 +38,6 @@ class SubCost:
     def labor_cost(self, labor_cost):
         return labor_cost if self.t < self.final_doc else 0
 
-# def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
-#         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
-#         labor_cost, bonus, h, pl, sr, r, fc, formula):
-
 def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial,
         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
         labor_cost, bonus, h, r, fc, formula):
