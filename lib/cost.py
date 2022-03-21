@@ -35,9 +35,12 @@ class SubCost:
         """
         return o if self.t < self.final_doc else 0
 
+    def labor_cost(self, labor_cost):
+        return labor_cost if self.t < self.final_doc else 0
+
 def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
-        docpartial1, docpartial2, docpartial3, docfinal, e, p, o, bonus, 
-        h, pl, sr, r, fc, formula):
+        docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
+        labor_cost, bonus, h, pl, sr, r, fc, formula):
 
     energy = []
     probiotics = []
@@ -47,6 +50,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
     biomassa = []
     bonusses = []
     realized_revenue = []
+    labor = []
 
     f = price_function("data/fixed_price.csv")
 
@@ -56,6 +60,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
         energy.append(sub_cost.energy_cost(e))
         probiotics.append(sub_cost.probiotic_cost(p))
         others.append(sub_cost.other_cost(o))
+        labor.append(sub_cost.labor_cost(labor_cost))
 
         obj = ph(t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
             docpartial1, docpartial2, docpartial3, docfinal)
@@ -74,7 +79,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
 
     bonusses[docfinal] = bonus * total
 
-    data = np.array([energy, probiotics, others, harvest, feeds, bonusses])
+    data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
 
     plharvested = hv[1]
@@ -87,10 +92,15 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
     return_opex = profit/data.sum()
     margin = profit/total_revenue
 
+    ### get profit for each time
+    cost_t = [data[:, :t].sum() for t in times]
+    cum_revenue = np.cumsum(realized_revenue)
+    cum_cost = np.cumsum(cost_t)
+    profit_t = cum_revenue - cum_cost
 
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
-            "harvest_cost", "feed_cost", "bonusses"],
+            "harvest_cost", "feed_cost", "bonusses", "labor_cost"],
         "data": data.transpose().tolist(),
         "aggregate": aggregate.tolist(),
         "matrix": {
@@ -102,6 +112,11 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
             "revenuePerPl": revenue_perpl,
             "returnOnOpex": return_opex,
             "margin": margin
+        },
+        "data_profit": {
+            "revenue": cum_revenue.tolist(),
+            "cost": cum_cost.tolist(),
+            "profit": profit_t.tolist()
         }
     }
     return result
