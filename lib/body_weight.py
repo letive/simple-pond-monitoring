@@ -66,8 +66,8 @@ def body_weight_section():
             option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
             st_echarts(options=option2)
 
-            option3 = Line("Revenue", index, [data["potential_revenue"], data["realized_revenue"]], 
-            ["Potential Revenue", "Realized Revenue"]).plot()
+            option3 = Line("Revenue", index, [data["realized_revenue"]], 
+            ["Realized Revenue"]).plot()
             st_echarts(options=option3)
 
             data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
