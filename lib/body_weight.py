@@ -25,10 +25,10 @@ def body_weight_section():
         w0 = st.number_input("w0", value=0.05)
         wn = st.number_input("wn", value=75)
 
-        partial1 = st.number_input("partial1", value=30)
-        partial2 = st.number_input("partial2", value=80)
-        partial3 = st.number_input("partial3", value=0)
-        finalpartial = st.number_input("final partial", value=120)
+        partial1 = st.number_input("partial1", value=0.1)
+        partial2 = st.number_input("partial2", value=0.1)
+        partial3 = st.number_input("partial3", value=0.1)
+        # finalpartial = st.number_input("final partial", value=120)
         
         docpartial1 = int(st.number_input("doc partial 1", value=60))
         docpartial2 = int(st.number_input("doc partial 2", value=80))
@@ -53,13 +53,14 @@ def body_weight_section():
     with col2:
         st.metric("Didapati bahwa n0 * SR", round(sr*n0))
         if submit:
-            data = aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial, docpartial1, docpartial2, docpartial3, docfinal)
+            data = aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, docpartial1, docpartial2, docpartial3, docfinal)
             index = [t for t in range(t0, T+1)]
 
             option = Line("Individual weight in gr", index, [data["body_weight"]], ["Wt"]).plot()
             st_echarts(options=option)
 
-            if partial1+partial2+partial3+finalpartial == round(n0 * sr):
+            partial4 = 1-partial1-partial2-partial3
+            if round(partial1*n0)+round(partial2*n0)+round(partial3*n0)+round(partial4*n0) == round(n0 * sr):
                 option1 = Line("Population", index, [data["population"]], ["Population"]).plot()
                 st_echarts(options=option1)
                 option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
@@ -68,7 +69,7 @@ def body_weight_section():
                 ["Realized Revenue", "Potential Revenue"], True).plot()
                 st_echarts(options=option3)
 
-                data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, finalpartial,
+                data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
                     docpartial1, docpartial2, docpartial3, docfinal, e, p, o, labor, bonus, 
                     h, r, fc, int(formula))
 
@@ -81,7 +82,7 @@ def body_weight_section():
                         ["Revenue", "Expense", "Profit"], True).plot()
                 st_echarts(options=option5)
             else:
-                st.warning("Your partial harvest was wrong")
+                st.warning("Your partial harvest was wrong, the sum of partials is {} not matched".format(round(partial1*n0)+round(partial2*n0)+round(partial3*n0)+round(partial4*n0)) )
 
 
             
