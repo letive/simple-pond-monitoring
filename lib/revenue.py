@@ -19,7 +19,7 @@ def aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
             docpartial1, 
             docpartial2, docpartial3, docfinal)
 
-        population.append(obj.population())
+        population.append(obj.population()*area)
         biomassa.append(obj.biomassa()["kg"])
         potential_revenue.append(obj.potential_revenue(f))
         revenue.append(obj.realized_revenue(f))
