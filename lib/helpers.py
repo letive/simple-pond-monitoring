@@ -61,17 +61,37 @@ def price_function(path, sep=";", col_size="size_count", col_price="price"):
     f = CubicSpline(x_sample, y_sample, bc_type="natural")
     return f
 
-def biomass_harvest(data, docpartial1, docpartial2, docpartial3):
+def biomass_harvest(data, T, docpartial1, docpartial2, docpartial3):
     """
     data: biomassa data
     docpartial1: docpartial1
     docpartial2: docpartial2
     docpartial3: docpartial3
     """
-    b1 = data[docpartial1] - data[docpartial1+1]
-    b2 = data[docpartial2] - data[docpartial2+1]
-    b3 = data[docpartial3] - data[docpartial3+1]
-    return b1, b2, b3, data[-1]
+
+
+    if (T >= docpartial1+1) & (T<docpartial2+1):
+        b1 =  data[docpartial1+1] - data[docpartial1]
+        b2 = 0
+        b3 = 0
+        b4 = 0
+    elif (T >=docpartial2+1) & (T <docpartial3+1):
+        b1 = data[docpartial1+1] - data[docpartial1]
+        b2 = data[docpartial2+1] - data[docpartial2]
+        b3 = 0
+        b4 = 0
+    elif (T>=docpartial3+1):
+        b1 = data[docpartial1+1] - data[docpartial1]
+        b2 = data[docpartial2+1] - data[docpartial2]
+        b3 = data[docpartial3+1] - data[docpartial3]
+        b4 = data[T]
+    else:
+        b1 = 0
+        b2 = 0
+        b3 = 0
+        b4 = 0
+
+    return b1, b2, b3, b4
 
 def feed_formula3(path, sep=";", colname="Formula 3"):
     df = pd.read_csv(path, sep=sep)

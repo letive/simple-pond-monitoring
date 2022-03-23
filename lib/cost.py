@@ -38,10 +38,11 @@ class SubCost:
     def labor_cost(self, labor_cost):
         return labor_cost if self.t < self.final_doc else 0
 
-def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
+def costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
         labor_cost, bonus, h, r, fc, formula):
 
+    m = -np.log10(sr)/T
     energy = []
     probiotics = []
     others = []
@@ -54,7 +55,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
 
     f = price_function("data/fixed_price.csv")
 
-    times = range(0, docfinal+1)
+    times = range(0, T+1)
     for t in times:
         sub_cost = SubCost(t, docfinal)
         energy.append(sub_cost.energy_cost(e))
@@ -62,7 +63,7 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
         others.append(sub_cost.other_cost(o))
         labor.append(sub_cost.labor_cost(labor_cost))
 
-        obj = ph(t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
+        obj = ph(t0, t, area, wn, w0, alpha, n0, m, sr, partial1, partial2, partial3,
             docpartial1, docpartial2, docpartial3, docfinal)
 
         # hv = obj.harvest_cost(h, pl, sr)
@@ -76,9 +77,9 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
         realized_revenue.append(obj.realized_revenue(f))
 
     # total biomassa which harvested
-    total = sum(biomass_harvest(biomassa, docpartial1, docpartial2, docpartial3))
+    total = sum(biomass_harvest(biomassa, T, docpartial1, docpartial2, docpartial3))
 
-    bonusses[docfinal] = bonus * total
+    bonusses[T] = bonus * total
 
     data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
@@ -89,7 +90,11 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
 
     total_revenue = sum(realized_revenue)
     profit = total_revenue - data.sum()
-    revenue_perpl = total_revenue/total
+    try:
+        revenue_perpl = total_revenue/total
+    except:
+        revenue_perpl = 0
+
     return_opex = profit/data.sum()
     margin = profit/total_revenue
 
@@ -97,7 +102,6 @@ def costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
     cost_t = [data[:, :t].sum() for t in times]
     cum_revenue = np.cumsum(realized_revenue)
     profit_t = cum_revenue - cost_t
-
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
             "harvest_cost", "feed_cost", "bonusses", "labor_cost"],

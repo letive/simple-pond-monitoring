@@ -2,7 +2,7 @@ from lib.helpers import body_weight, heaviside_step, pl_harvest, feed_formula3
 import numpy as np
 
 class PartialHarvest:
-    def __init__(self, t0, t, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+    def __init__(self, t0, t, area, wn, w0, alpha, n0, m, sr, partial1, partial2, partial3, 
             docpartial1, docpartial2, docpartial3, docfinal) -> None:
 
         self.t0 = t0
@@ -13,6 +13,7 @@ class PartialHarvest:
         self.alpha = alpha
         self.n0 = n0
         self.m = m
+        self.sr = sr
         self.partial1 = partial1
         self.partial2 = partial2
         self.partial3 = partial3
@@ -26,10 +27,10 @@ class PartialHarvest:
         return body_weight(self.wn, self.w0, self.alpha, self.t0, self.t)
 
     def population(self):
-        ph1 = self.partial1 * self.n0 * heaviside_step(self.t-self.docpartial1)
-        ph2 = self.partial2 * self.n0 * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * self.n0 * heaviside_step(self.t-self.docpartial3)
-        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * heaviside_step(self.t - self.docfinal)
+        ph1 = self.partial1 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial1)
+        ph2 = self.partial2 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial2)
+        ph3 = self.partial3 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial3)
+        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * self.sr * heaviside_step(self.t - self.docfinal)
         result = self.n0 * np.exp(-self.m*(self.t)) - ph1 - ph2 - ph3 - ph4 # masih tanda tanya apakah dikali n0 atau tidak
         return result
 
@@ -48,10 +49,10 @@ class PartialHarvest:
         """
         
         doc = [self.docpartial1, self.docpartial2, self.docpartial3]
-        ph1 = self.partial1 * self.n0 * heaviside_step(self.t-self.docpartial1)
-        ph2 = self.partial2 * self.n0 * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * self.n0 * heaviside_step(self.t-self.docpartial3)
-        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * heaviside_step(self.t-self.docfinal) 
+        ph1 = self.partial1 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial1)
+        ph2 = self.partial2 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial2)
+        ph3 = self.partial3 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial3)
+        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * self.sr * heaviside_step(self.t-self.docfinal) 
         plharvest = [ph1, ph2, ph3, ph4]
         status = False
         for i in enumerate(doc):

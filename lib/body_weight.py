@@ -1,11 +1,8 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-
 from lib.revenue import aggregation
 from lib.plot import Line, Pie
 from lib.cost import costing
-
-import numpy as np
 
 # BASE_URL = "https://aqua-dinamika.herokuapp.com"
 
@@ -46,21 +43,19 @@ def body_weight_section():
             fc = st.number_input("feeding price", value=16000)
             formula = st.selectbox("formula", (1, 2))
 
-        m = -np.log10(sr)/T
-
         submit = st.button("submit")
 
     with col2:
         st.metric("Didapati bahwa n0 * SR", round(sr*n0))
         if submit:
-            data = aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, docpartial1, docpartial2, docpartial3, docfinal)
+            data = aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3, docpartial1, docpartial2, docpartial3, docfinal)
             index = [t for t in range(t0, T+1)]
 
             option = Line("Individual weight in gr", index, [data["body_weight"]], ["Wt"]).plot()
             st_echarts(options=option)
 
             partial4 = 1-partial1-partial2-partial3
-            if round(partial1*n0)+round(partial2*n0)+round(partial3*n0)+round(partial4*n0) == round(n0 * sr):
+            if round(partial1*n0 * sr )+round(partial2*n0 * sr )+round(partial3*n0 * sr)+round(partial4*n0 *sr) == round(n0 * sr):
                 option1 = Line("Population", index, [data["population"]], ["Population"]).plot()
                 st_echarts(options=option1)
                 option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
@@ -69,7 +64,7 @@ def body_weight_section():
                 ["Realized Revenue", "Potential Revenue"], True).plot()
                 st_echarts(options=option3)
 
-                data = costing(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
+                data = costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
                     docpartial1, docpartial2, docpartial3, docfinal, e, p, o, labor, bonus, 
                     h, r, fc, int(formula))
 

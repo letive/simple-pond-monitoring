@@ -2,9 +2,10 @@ from lib.partial_harvest import PartialHarvest
 from lib.helpers import body_weight, price_function
 import numpy as np
 
-def aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3, 
+def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3, 
             docpartial1, docpartial2, docpartial3, docfinal):
 
+    m = -np.log10(sr)/T
     revenue = []
     potential_revenue = []
     population = []
@@ -12,8 +13,8 @@ def aggregation(t0, area, wn, w0, alpha, n0, m, partial1, partial2, partial3,
     wt = [] 
 
     f = price_function("data/fixed_price.csv")
-    for t in range(0, docfinal+1):
-        obj = PartialHarvest(t0, t, area, wn, w0, alpha, n0, m, 
+    for t in range(0, T+1):
+        obj = PartialHarvest(t0, t, area, wn, w0, alpha, n0, m, sr,
             partial1, partial2, partial3,
             docpartial1, 
             docpartial2, docpartial3, docfinal)
