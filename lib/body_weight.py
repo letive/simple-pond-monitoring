@@ -54,8 +54,8 @@ def body_weight_section():
             option = Line("Individual weight in gr", index, [data["body_weight"]], ["Wt"]).plot()
             st_echarts(options=option)
 
-            partial4 = 1-partial1-partial2-partial3
-            if round(partial1*n0 * sr )+round(partial2*n0 * sr )+round(partial3*n0 * sr)+round(partial4*n0 *sr) == round(n0 * sr):
+            partial4 = sr-partial1-partial2-partial3
+            if partial4 >= 0:
                 option1 = Line("Population", index, [data["population"]], ["Population"]).plot()
                 st_echarts(options=option1)
                 option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()

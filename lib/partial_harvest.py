@@ -27,11 +27,11 @@ class PartialHarvest:
         return body_weight(self.wn, self.w0, self.alpha, self.t0, self.t)
 
     def population(self):
-        ph1 = self.partial1 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial1)
-        ph2 = self.partial2 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial3)
-        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * self.sr * heaviside_step(self.t - self.docfinal)
-        result = self.n0 * np.exp(-self.m*(self.t)) - ph1 - ph2 - ph3 - ph4 # masih tanda tanya apakah dikali n0 atau tidak
+        ph1 = self.partial1 * heaviside_step(self.t-self.docpartial1)
+        ph2 = self.partial2 * heaviside_step(self.t-self.docpartial2)
+        ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3)
+        ph4 = (self.sr - self.partial1 - self.partial2 - self.partial3) * heaviside_step(self.t - self.docfinal)
+        result = self.n0 * (np.exp(-self.m*(self.t)) - ph1 - ph2 - ph3 - ph4) # masih tanda tanya apakah dikali n0 atau tidak
         return result
 
     def biomassa(self):

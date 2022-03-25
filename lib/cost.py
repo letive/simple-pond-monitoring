@@ -42,7 +42,7 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
         docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
         labor_cost, bonus, h, r, fc, formula):
 
-    m = -np.log10(sr)/T
+    m = -np.log(sr)/T
     energy = []
     probiotics = []
     others = []
