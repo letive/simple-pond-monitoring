@@ -49,10 +49,10 @@ class PartialHarvest:
         """
         
         doc = [self.docpartial1, self.docpartial2, self.docpartial3]
-        ph1 = self.partial1 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial1)
-        ph2 = self.partial2 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * self.n0 * self.sr * heaviside_step(self.t-self.docpartial3)
-        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * self.sr * heaviside_step(self.t-self.docfinal) 
+        ph1 = self.partial1 * self.n0 * heaviside_step(self.t-self.docpartial1)
+        ph2 = self.partial2 * self.n0 * heaviside_step(self.t-self.docpartial2)
+        ph3 = self.partial3 * self.n0 * heaviside_step(self.t-self.docpartial3)
+        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * heaviside_step(self.t-self.docfinal) 
         plharvest = [ph1, ph2, ph3, ph4]
         status = False
         for i in enumerate(doc):
