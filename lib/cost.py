@@ -2,7 +2,7 @@ import numpy as np
 from lib.partial_harvest import PartialHarvest as ph
 from lib.helpers import biomass_harvest, price_function
 
-class SubCost:
+class constantCost:
     def __init__(self, t, final_doc) -> None:
         """
         t: time t-th
@@ -38,11 +38,11 @@ class SubCost:
     def labor_cost(self, labor_cost):
         return labor_cost if self.t < self.final_doc else 0
 
-def costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
-        docpartial1, docpartial2, docpartial3, docfinal, e, p, o, 
+
+def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o, 
         labor_cost, bonus, h, r, fc, formula):
 
-    m = -np.log(sr)/T
+    # m = -np.log(sr)/T
     energy = []
     probiotics = []
     others = []
@@ -52,46 +52,55 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
     bonusses = []
     realized_revenue = []
     labor = []
+    adg = []
+    fcr = []
 
     f = price_function("data/fixed_price.csv")
 
     times = range(0, T+1)
     for t in times:
-        sub_cost = SubCost(t, docfinal)
+        sub_cost = constantCost(t, doc[-1])
         energy.append(sub_cost.energy_cost(e))
         probiotics.append(sub_cost.probiotic_cost(p))
         others.append(sub_cost.other_cost(o))
         labor.append(sub_cost.labor_cost(labor_cost))
 
-        obj = ph(t0, t, area, wn, w0, alpha, n0, m, sr, partial1, partial2, partial3,
-            docpartial1, docpartial2, docpartial3, docfinal)
+        obj = ph(t0, t, wn, w0, alpha, n0, sr, partial, doc)
+        
+        # harvest.append(obj.harvest_cost(h) * area)
+        feeds.append(obj.feed_cost(fc, formula, r)*area)
 
-        # hv = obj.harvest_cost(h, pl, sr)
-        hv = obj.harvest_cost(h)
-        harvest.append(hv[0])
-        feeds.append(obj.feed_cost(fc, formula, r))
-
-        biomassa.append(obj.biomassa()["kg"])
+        biomassa.append(obj.biomassa()/1000)
         bonusses.append(0)
 
         realized_revenue.append(obj.realized_revenue(f))
+        adg.append(obj.adg())
+        fcr.append(obj.fcr(formula, r))
+
+        ### harvested
+
+    harvest = obj.harvest_cost(h)*area
 
     # total biomassa which harvested
-    total = sum(biomass_harvest(biomassa, T, docpartial1, docpartial2, docpartial3))
+    # total_pl = sum(pl_harvest(T, n0, sr, partial, doc))
 
-    bonusses[T] = bonus * total
+    total_pl = obj.harvested_population()
 
-    data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
+
+    bonusses[T] = bonus * total_pl
+    data = np.array([energy, probiotics, others, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
 
-    plharvested = hv[1]
-    cost_perkg = data.sum()/total
-    cost_perpl = data.sum()/sum(plharvested)
+    # total_biomassa = sum(biomass_harvest(T, biomassa, doc)) 
+    total_biomassa = obj.biomass_harvest()/1000
 
-    total_revenue = sum(realized_revenue)
+    cost_perkg = data.sum()/total_biomassa
+    cost_perpl = data.sum()/total_pl
+
+    total_revenue = sum(realized_revenue) * area
     profit = total_revenue - data.sum()
     try:
-        revenue_perpl = total_revenue/total
+        revenue_perpl = total_revenue/total_pl
     except:
         revenue_perpl = 0
 
@@ -100,8 +109,11 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
 
     ### get profit for each time
     cost_t = [data[:, :t].sum() for t in times]
-    cum_revenue = np.cumsum(realized_revenue)
+    cum_revenue = np.cumsum(realized_revenue) * area
     profit_t = cum_revenue - cost_t
+
+    yeild = (total_biomassa/1000)/(area/10000) #ton/ha
+    fcr_t = sum(fcr)
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
             "harvest_cost", "feed_cost", "bonusses", "labor_cost"],
@@ -115,7 +127,10 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
             "profit": profit,
             "revenuePerPl": revenue_perpl,
             "returnOnOpex": return_opex,
-            "margin": margin
+            "margin": margin,
+            "yeild": yeild,
+            "adg": adg[T],
+            "fcr": fcr_t
         },
         "data_profit": {
             "revenue": cum_revenue.tolist(),

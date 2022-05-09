@@ -2,89 +2,74 @@ from lib.helpers import body_weight, heaviside_step, pl_harvest, feed_formula3
 import numpy as np
 
 class PartialHarvest:
-    def __init__(self, t0, t, area, wn, w0, alpha, n0, m, sr, partial1, partial2, partial3, 
-            docpartial1, docpartial2, docpartial3, docfinal) -> None:
-
+    def __init__(self, t0: int, t: int, wn: float, w0: float, alpha: float, n0: int, sr: float, 
+        ph: list, doc: list, final_doc:int = 120) -> None:
+        """
+        t0: initial time
+        t: current time
+        wn: shrimp max weight 
+        w0:  shrimp stocking weight g
+        alpha: shrimp growth rate
+        n0: shrimp stocking density
+        sr: survival rate
+        ph: partial harvest. list of the amount each partial harvest
+        doc: day old culture. list of the partial harvest time
+        """
         self.t0 = t0
         self.t = t
-        self.area = area
         self.wn = wn
         self.w0 = w0
         self.alpha = alpha
         self.n0 = n0
-        self.m = m
         self.sr = sr
-        self.partial1 = partial1
-        self.partial2 = partial2
-        self.partial3 = partial3
-        # self.finalpartial = finalpartial
-        self.docpartial1 = docpartial1
-        self.docpartial2 = docpartial2
-        self.docpartial3 = docpartial3
-        self.docfinal = docfinal
+        self.ph = ph
+        self.doc = doc
+        self.final_doc = final_doc
+
+        # mortality rate from sr
+        # self.m = np.log(sr)/self.t 
 
     def wt(self):
         return body_weight(self.wn, self.w0, self.alpha, self.t0, self.t)
 
+    def SR(self):
+        # for i in range(self.t+1):
+        m = np.log(self.sr)/self.t if self.t != 0 else 0
+        return m
+
+    # N(t)
     def population(self):
-        ph1 = self.partial1 * heaviside_step(self.t-self.docpartial1)
-        ph2 = self.partial2 * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * heaviside_step(self.t-self.docpartial3)
-        ph4 = (self.sr - self.partial1 - self.partial2 - self.partial3) * heaviside_step(self.t - self.docfinal)
-        result = self.n0 * (np.exp(-self.m*(self.t)) - ph1 - ph2 - ph3 - ph4) # masih tanda tanya apakah dikali n0 atau tidak
-        return result
+        n = []
+        for i in range(self.t+1):
+            m = np.log(self.sr)/i if i != 0 else 0
+            if i == 0:
+                n.append(self.n0 * np.exp(-m*i))
+            elif i == self.final_doc:
+                n.append(0)
+            else:
+                try:
+                    n.append(n[-1] * (np.exp(m*i) - self.ph[self.doc.index(i)])) 
+                except:
+                    n.append(n[-1] * np.exp(m*i))
+
+        return n    
+
 
     def biomassa(self):
-        result = (self.area * self.wt() * self.population())
-        return {"gr": result, "kg": result/1000}
+        # biomassa in gram
+        result = self.wt() * self.population()[-1]
+        return result
     
     def biomassa_constant(self):
-        return self.area * self.wt() * self.n0
+        return self.wt() * self.n0
 
-    def harvest_cost(self, h):
-        """
-        h: harvest cost per kg
-        pl: intial postlarva 
-        sr: survival rate
-        """
-        
-        doc = [self.docpartial1, self.docpartial2, self.docpartial3]
-        ph1 = self.partial1 * self.n0 * heaviside_step(self.t-self.docpartial1)
-        ph2 = self.partial2 * self.n0 * heaviside_step(self.t-self.docpartial2)
-        ph3 = self.partial3 * self.n0 * heaviside_step(self.t-self.docpartial3)
-        ph4 = (1 - self.partial1 - self.partial2 - self.partial3) * self.n0 * heaviside_step(self.t-self.docfinal) 
-        plharvest = [ph1, ph2, ph3, ph4]
-        status = False
-        for i in enumerate(doc):
-            if self.t == i[1]:
-                result = plharvest[i[0]]*h*self.wt()/1000 # dibagi 1000 untuk mengubahnya menjadi kg
-                status = True
-                break
-
-        if not status:
-            result = 0
-
-        return result, plharvest
-
-    def feed_cost(self, fc, formula_type=2, r=None):
-        """
-        r: feeding rate
-        fc: feed cost per kg
-        formula_type: formula_type for feeding cost calculation. There are 1 and 2.
-        """
-        if formula_type == 1:
-            return self.biomassa()["kg"] * r * fc
-        else:
-            formula3 = feed_formula3("data/data-feeding-formula-3.csv", ",")
-            if self.t < self.docfinal:
-                return formula3[self.t] * self.area / 1000 * (1+0.2) * fc
-            else:
-                return 0
+    #########################################
+    # revenue
+    #########################################
 
     def realized_revenue(self, f):
-        doc = [self.docpartial1, self.docpartial2, self.docpartial3, self.docfinal]
-        if self.t in doc:
-            return self.biomassa()["kg"] * f(1000/self.wt())
+        if self.t in self.doc:
+            return self.biomassa()/1000 * f(1000/self.wt()) # biomassa dikalikan dengan harga per size  
         else:
             return 0
 
@@ -92,5 +77,51 @@ class PartialHarvest:
         pr = self.biomassa_constant()/1000 * f(1000/self.wt())
         return 0 if pr < 0 else pr
 
-    def cost_function(self, f):
-        return f(1000/self.wt())
+    #########################################
+    # costing
+    #########################################
+    def feed_cost(self, fc, formula_type=2, r=None):
+        """
+        r: feeding rate
+        fc: feed cost per kg
+        formula_type: formula_type for feeding cost calculation. There are 1 and 2.
+        """
+        if formula_type == 1:
+            return self.biomassa()/1000 * r * fc
+        else:
+            formula3 = feed_formula3("data/data-feeding-formula-3.csv", ",")
+            if self.t < self.doc[-1]:
+                return formula3[self.t] / 1000 * (1+0.2) * fc
+            else:
+                return 0
+
+    def harvested_population(self):
+        dailyCulture = self.population()
+        partial = []
+        for i in self.doc:
+            try:
+                partial.append(dailyCulture[i-1] - dailyCulture[i])
+            except:
+                break
+        return sum(partial)
+
+    def biomass_harvest(self):
+        return self.wt() * self.harvested_population()
+
+    def harvest_cost(self, h):
+        """
+        h: harvest cost per kg
+        """
+        return self.harvested_population() * h
+
+    def fcr(self, formula_type=2, r=None):
+        feed = self.feed_cost(1, formula_type, r) # we use fc = 1 to get the amount of feed
+        biomass = self.biomassa()/1000 
+        return 0 if np.isnan(feed/biomass) else feed/biomass
+
+    def adg(self):
+        """
+        average daily growth
+        """
+        result = self.wt()/self.t if self.t !=0 else 0
+        return result
