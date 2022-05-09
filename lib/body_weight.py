@@ -64,9 +64,8 @@ def body_weight_section():
                 ["Realized Revenue", "Potential Revenue"], True).plot()
                 st_echarts(options=option3)
 
-                data = costing(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3,
-                    docpartial1, docpartial2, docpartial3, docfinal, e, p, o, labor, bonus, 
-                    h, r, fc, int(formula))
+                data = costing(t0, T, area, wn, w0, alpha, n0, sr, [partial1, partial2, partial3],
+                    [docpartial1, docpartial2, docpartial3], e, p, o, labor, bonus, h, r, fc, int(formula))
 
                 dataviz = [{"value": i[1], "name": data["index"][i[0]]} for i in enumerate(data["aggregate"])]
                 option4 = Pie("Cost Structure Diagram", dataviz, True).plot()
