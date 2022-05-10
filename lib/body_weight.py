@@ -48,7 +48,7 @@ def body_weight_section():
     with col2:
         st.metric("Didapati bahwa n0 * SR", round(sr*n0))
         if submit:
-            data = aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial1, partial2, partial3, docpartial1, docpartial2, docpartial3, docfinal)
+            data = aggregation(t0, T, area, wn, w0, alpha, n0, sr, [partial1, partial2, partial3], [docpartial1, docpartial2, docpartial3])
             index = [t for t in range(t0, T+1)]
 
             option = Line("Individual weight in gr", index, [data["body_weight"]], ["Wt"]).plot()
@@ -60,7 +60,7 @@ def body_weight_section():
                 st_echarts(options=option1)
                 option2 = Line("Biomassa", index, [data["biomassa"]], ["Biomassa (kg)"]).plot()
                 st_echarts(options=option2)
-                option3 = Line("Revenue", index, [data["realized_revenue"], data["potential_revenue"]], 
+                option3 = Line("Revenue", index, [data["cumulative_revenue"], data["potential_revenue"]], 
                 ["Realized Revenue", "Potential Revenue"], True).plot()
                 st_echarts(options=option3)
 

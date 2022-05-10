@@ -1,6 +1,6 @@
 import numpy as np
 from lib.partial_harvest import PartialHarvest as ph
-from lib.helpers import biomass_harvest, price_function
+from lib.helpers import biomass_harvest, price_function, pl_harvest
 
 class constantCost:
     def __init__(self, t, final_doc) -> None:
@@ -57,6 +57,7 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
 
     f = price_function("data/fixed_price.csv")
 
+    m = np.log(sr)/T
     times = range(0, T+1)
     for t in times:
         sub_cost = constantCost(t, doc[-1])
@@ -65,30 +66,30 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
         others.append(sub_cost.other_cost(o))
         labor.append(sub_cost.labor_cost(labor_cost))
 
-        obj = ph(t0, t, wn, w0, alpha, n0, sr, partial, doc)
+        obj = ph(t0, t, wn, w0, alpha, n0, sr, m, partial, doc)
         
-        # harvest.append(obj.harvest_cost(h) * area)
+        harvest.append(obj.harvest_cost(h) * area)
         feeds.append(obj.feed_cost(fc, formula, r)*area)
 
-        biomassa.append(obj.biomassa()/1000)
+        biomassa.append(obj.biomassa()/1000 * area)
         bonusses.append(0)
 
-        realized_revenue.append(obj.realized_revenue(f))
+        realized_revenue.append(obj.realized_revenue(f)*area)
         adg.append(obj.adg())
         fcr.append(obj.fcr(formula, r))
 
         ### harvested
 
-    harvest = obj.harvest_cost(h)*area
+    # harvest = obj.harvest_cost(h)*area
 
     # total biomassa which harvested
     # total_pl = sum(pl_harvest(T, n0, sr, partial, doc))
 
-    total_pl = obj.harvested_population()
+    total_pl = obj.harvested_population()*area
 
 
     bonusses[T] = bonus * total_pl
-    data = np.array([energy, probiotics, others, feeds, bonusses, labor])
+    data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
 
     # total_biomassa = sum(biomass_harvest(T, biomassa, doc)) 

@@ -1,8 +1,10 @@
-from lib.helpers import body_weight, heaviside_step, pl_harvest, feed_formula3
+from lib.helpers import body_weight, heaviside_step, feed_formula3
 import numpy as np
 
+# base function per m2 in t 
+
 class PartialHarvest:
-    def __init__(self, t0: int, t: int, wn: float, w0: float, alpha: float, n0: int, sr: float, 
+    def __init__(self, t0: int, t: int, wn: float, w0: float, alpha: float, n0: int, sr: float, m: float, 
         ph: list, doc: list, final_doc:int = 120) -> None:
         """
         t0: initial time
@@ -22,6 +24,7 @@ class PartialHarvest:
         self.alpha = alpha
         self.n0 = n0
         self.sr = sr
+        self.m = m
         self.ph = ph
         self.doc = doc
         self.final_doc = final_doc
@@ -38,26 +41,38 @@ class PartialHarvest:
         return m
 
     # N(t)
-    def population(self):
-        n = []
-        for i in range(self.t+1):
-            m = np.log(self.sr)/i if i != 0 else 0
-            if i == 0:
-                n.append(self.n0 * np.exp(-m*i))
-            elif i == self.final_doc:
-                n.append(0)
-            else:
-                try:
-                    n.append(n[-1] * (np.exp(m*i) - self.ph[self.doc.index(i)])) 
-                except:
-                    n.append(n[-1] * np.exp(m*i))
+    # def population(self):
+    #     n = []
+    #     m = -np.log(self.sr)/self.t if self.t != 0 else 0   
+    #     mortality_population = self.no * np.exp(m)
+    #     for i in range(self.t+1):
+    #         if i == 0:
+    #             n.append(self.n0 * np.exp(-m*i))
+    #         elif i == self.final_doc:
+    #             n.append(0)
+    #         else:
+    #             try:
+    #                 n.append((n[-1] * np.exp(-m*i)) - (n[-1] * self.ph[self.doc.index(i)]))
+    #             except:
+    #                 n.append( n[-1] * np.exp(-m*i))
 
-        return n    
+    #     return n     
+
+    def population(self):
+        partial_harvest = []
+        for i, j in enumerate(self.doc):
+            try:
+                partial_harvest.append(self.ph[i] * heaviside_step(self.t - j))
+            except:
+                partial_harvest.append((self.sr - sum(self.ph)) * heaviside_step(self.t - j))
+        
+        result = self.n0 * (np.exp(-self.m * self.t) - sum(partial_harvest))
+        return result
 
 
     def biomassa(self):
         # biomassa in gram
-        result = self.wt() * self.population()[-1]
+        result = self.wt() * self.population()
         return result
     
     def biomassa_constant(self):
@@ -96,11 +111,11 @@ class PartialHarvest:
                 return 0
 
     def harvested_population(self):
-        dailyCulture = self.population()
+        # dailyCulture = self.population()
         partial = []
         for i in self.doc:
             try:
-                partial.append(dailyCulture[i-1] - dailyCulture[i])
+                partial.append(self.population[i] - self.population[i-1])
             except:
                 break
         return sum(partial)
