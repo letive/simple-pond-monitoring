@@ -84,7 +84,7 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
         harvest_biomass.append(obj.biomass_harvest()/1000 * area)
 
 
-    bonusses[T] = bonus * sum(harvest_population)
+    bonusses[T] = bonus * sum(harvest_biomass)
     data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
 
