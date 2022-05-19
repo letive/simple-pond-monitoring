@@ -4,7 +4,6 @@ import numpy as np
 
 def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial, doc):
 
-    # m = -np.log(sr)/T
     revenue = []
     potential_revenue = []
     population = []

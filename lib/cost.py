@@ -1,6 +1,6 @@
 import numpy as np
 from lib.partial_harvest import PartialHarvest as ph
-from lib.helpers import biomass_harvest, price_function, pl_harvest
+from lib.helpers import price_function
 
 class constantCost:
     def __init__(self, t, final_doc) -> None:
@@ -40,9 +40,8 @@ class constantCost:
 
 
 def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o, 
-        labor_cost, bonus, h, r, fc, formula):
+        labor_cost, bonus, h, r, fc, formula, final_doc=120):
 
-    # m = -np.log(sr)/T
     energy = []
     probiotics = []
     others = []
@@ -55,12 +54,15 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
     adg = []
     fcr = []
 
+    harvest_population = []
+    harvest_biomass = []
+
     f = price_function("data/fixed_price.csv")
 
     m = np.log(sr)/T
     times = range(0, T+1)
     for t in times:
-        sub_cost = constantCost(t, doc[-1])
+        sub_cost = constantCost(t, final_doc)
         energy.append(sub_cost.energy_cost(e))
         probiotics.append(sub_cost.probiotic_cost(p))
         others.append(sub_cost.other_cost(o))
@@ -78,30 +80,22 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
         adg.append(obj.adg())
         fcr.append(obj.fcr(formula, r))
 
-        ### harvested
-
-    # harvest = obj.harvest_cost(h)*area
-
-    # total biomassa which harvested
-    # total_pl = sum(pl_harvest(T, n0, sr, partial, doc))
-
-    total_pl = obj.harvested_population()*area
+        harvest_population.append(obj.harvested_population()* area)
+        harvest_biomass.append(obj.biomass_harvest()/1000 * area)
 
 
-    bonusses[T] = bonus * total_pl
+    bonusses[T] = bonus * sum(harvest_population)
     data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
 
-    # total_biomassa = sum(biomass_harvest(T, biomassa, doc)) 
-    total_biomassa = obj.biomass_harvest()/1000
+    cost_perkg = data.sum()/sum(harvest_biomass)
+    cost_perpl = data.sum()/sum(harvest_population)
 
-    cost_perkg = data.sum()/total_biomassa
-    cost_perpl = data.sum()/total_pl
+    total_revenue = sum(realized_revenue)
 
-    total_revenue = sum(realized_revenue) * area
-    profit = total_revenue - data.sum()
+    profit = total_revenue - data[:, :T].sum()
     try:
-        revenue_perpl = total_revenue/total_pl
+        revenue_perpl = total_revenue/sum(harvest_population)
     except:
         revenue_perpl = 0
 
@@ -109,24 +103,25 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
     margin = profit/total_revenue
 
     ### get profit for each time
-    cost_t = [data[:, :t].sum() for t in times]
-    cum_revenue = np.cumsum(realized_revenue) * area
+    cost_t = [data[:, :ti].sum() for ti in range(T+1)]
+    cum_revenue = np.cumsum(realized_revenue)
     profit_t = cum_revenue - cost_t
 
-    yeild = (total_biomassa/1000)/(area/10000) #ton/ha
+    yeild = (sum(harvest_biomass))/(area/1000)/1000 #ton/ha
     fcr_t = sum(fcr)
+    print(fcr)
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
             "harvest_cost", "feed_cost", "bonusses", "labor_cost"],
         "data": data.transpose().tolist(),
         "aggregate": aggregate.tolist(),
         "matrix": {
-            "costPerKg": cost_perkg,
-            "costPerPl": cost_perpl,
-            "totalCost": data.sum(),
-            "totalRevenue": total_revenue,
-            "profit": profit,
-            "revenuePerPl": revenue_perpl,
+            "costPerKg": "Rp {:,.2f}".format(cost_perkg),
+            "costPerPl": "Rp {:,.2f}".format(cost_perpl),
+            "totalCost": "Rp {:,.2f}".format(data[:, :T].sum()),
+            "totalRevenue": "Rp {:,.2f}".format(total_revenue),
+            "profit":  "Rp {:,.2f}".format(profit),
+            "revenuePerPl": "Rp {:,.2f}".format(revenue_perpl),
             "returnOnOpex": return_opex,
             "margin": margin,
             "yeild": yeild,

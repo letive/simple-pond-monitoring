@@ -29,42 +29,20 @@ class PartialHarvest:
         self.doc = doc
         self.final_doc = final_doc
 
-        # mortality rate from sr
-        # self.m = np.log(sr)/self.t 
-
     def wt(self):
         return body_weight(self.wn, self.w0, self.alpha, self.t0, self.t)
 
-    def SR(self):
-        # for i in range(self.t+1):
-        m = np.log(self.sr)/self.t if self.t != 0 else 0
-        return m
-
-    # N(t)
-    # def population(self):
-    #     n = []
-    #     m = -np.log(self.sr)/self.t if self.t != 0 else 0   
-    #     mortality_population = self.no * np.exp(m)
-    #     for i in range(self.t+1):
-    #         if i == 0:
-    #             n.append(self.n0 * np.exp(-m*i))
-    #         elif i == self.final_doc:
-    #             n.append(0)
-    #         else:
-    #             try:
-    #                 n.append((n[-1] * np.exp(-m*i)) - (n[-1] * self.ph[self.doc.index(i)]))
-    #             except:
-    #                 n.append( n[-1] * np.exp(-m*i))
-
-    #     return n     
+    # def SR(self):
+    #     m = np.log(self.sr)/self.t if self.t != 0 else 0
+    #     return m 
 
     def population(self):
         partial_harvest = []
         for i, j in enumerate(self.doc):
-            try:
-                partial_harvest.append(self.ph[i] * heaviside_step(self.t - j))
-            except:
-                partial_harvest.append((self.sr - sum(self.ph)) * heaviside_step(self.t - j))
+            partial_harvest.append(self.ph[i] * heaviside_step(self.t - j))
+
+        if self.t+1 >= self.final_doc:           
+            partial_harvest.append((self.sr - sum(self.ph)) * heaviside_step(self.t - j))
         
         result = self.n0 * (np.exp(-self.m * self.t) - sum(partial_harvest))
         return result
@@ -114,10 +92,13 @@ class PartialHarvest:
         # dailyCulture = self.population()
         partial = []
         for i in self.doc:
-            try:
-                partial.append(self.population[i] - self.population[i-1])
-            except:
-                break
+            if self.t+1 == i:
+                nti = PartialHarvest(self.t0, self.t+1, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc).population()
+                nti_1 = PartialHarvest(self.t0, self.t, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc).population()
+                partial.append(nti_1-nti)
+            else:
+                partial.append(0)
+
         return sum(partial)
 
     def biomass_harvest(self):

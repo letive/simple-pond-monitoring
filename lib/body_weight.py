@@ -32,16 +32,16 @@ def body_weight_section():
         docpartial3 = int(st.number_input("doc partial 3", value=100))
         docfinal = int(st.number_input("doc final", value=120))
 
-        with st.expander("Costing Params"):
-            e = st.number_input("energy day cost", value=3.14)
-            p = st.number_input("daily probiotics", value=109900)
-            o = st.number_input("others cost", value=30000)
-            labor = st.number_input("labor cost", value=75000)
-            bonus = st.number_input("bonus", value=2000)
-            h = st.number_input("harvest cost per kg", value=1000)
-            r = st.number_input("feeding rate", value=0.037)
-            fc = st.number_input("feeding price", value=16000)
-            formula = st.selectbox("formula", (1, 2))
+        # with st.expander("Costing Params"):
+        e = st.number_input("energy day cost", value=3.14)
+        p = st.number_input("daily probiotics", value=109900)
+        o = st.number_input("others cost", value=30000)
+        labor = st.number_input("labor cost", value=75000)
+        bonus = st.number_input("bonus", value=2000)
+        h = st.number_input("harvest cost per kg", value=1000)
+        r = st.number_input("feeding rate", value=0.037)
+        fc = st.number_input("feeding price", value=16000)
+        formula = st.selectbox("formula", (1, 2))
 
         submit = st.button("submit")
 
@@ -78,5 +78,15 @@ def body_weight_section():
             else:
                 st.warning("Your partial harvest was wrong, the sum of partials is {} not matched".format(round(partial1*n0)+round(partial2*n0)+round(partial3*n0)+round(partial4*n0)) )
 
+
+            st.metric(label="Total Revenue", value=data["matrix"]["totalRevenue"])
+            st.metric(label="Total Expense", value=data["matrix"]["totalCost"])
+            st.metric(label="Profit", value=data["matrix"]["profit"])
+            st.metric(label="Revenu Per PL", value=data["matrix"]["revenuePerPl"])
+            st.metric(label="Return On Opex", value=data["matrix"]["returnOnOpex"])
+            st.metric(label="Margin", value=data["matrix"]["margin"])
+            st.metric(label="Yeild", value=data["matrix"]["yeild"])
+            st.metric(label="ADG", value=data["matrix"]["adg"])
+            st.metric(label="FCR", value=data["matrix"]["fcr"])
 
             
