@@ -80,11 +80,14 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
         adg.append(obj.adg())
         fcr.append(obj.fcr(formula, r))
 
-        harvest_population.append(obj.harvested_population()* area)
-        harvest_biomass.append(obj.biomass_harvest()/1000 * area)
+        harvest_population.append(obj.harvest_population()* area)
+        harvest_biomass.append(obj.harvest_biomass() * area)
 
+    
+    # bonusses[T] = bonus * sum(harvest_biomass)
+    # print(np.cumsum(harvest_biomass)[-1])
+    bonusses[T] = bonus * np.cumsum(harvest_biomass)[-1]
 
-    bonusses[T] = bonus * sum(harvest_biomass)
     data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
     aggregate = data.sum(axis=1)/data.sum() 
 
@@ -109,7 +112,7 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
 
     yeild = (sum(harvest_biomass))/(area/1000)/1000 #ton/ha
     fcr_t = sum(fcr)
-    print(fcr)
+    # print(sum(harvest_biomass))
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
             "harvest_cost", "feed_cost", "bonusses", "labor_cost"],

@@ -59,12 +59,24 @@ class PartialHarvest:
     #########################################
     # revenue
     #########################################
-
-    def realized_revenue(self, f):
+    def harvest_population(self):
         if self.t in self.doc:
-            return self.biomassa()/1000 * f(1000/self.wt()) # biomassa dikalikan dengan harga per size  
+            return self.population()
         else:
             return 0
+
+    def harvest_biomass(self):
+        if self.t in self.doc:
+            return self.biomassa()/1000
+        else:
+            return 0
+
+    def realized_revenue(self, f):
+        return self.harvest_biomass() * f(1000/self.wt()) # biomassa dikalikan dengan harga per size
+        # if self.t in self.doc:
+        #     return self.biomassa()/1000 * f(1000/self.wt()) # biomassa dikalikan dengan harga per size  
+        # else:
+        #     return 0
 
     def potential_revenue(self, f):
         pr = self.biomassa_constant()/1000 * f(1000/self.wt())
@@ -88,27 +100,27 @@ class PartialHarvest:
             else:
                 return 0
 
-    def harvested_population(self):
-        # dailyCulture = self.population()
-        partial = []
-        for i in self.doc:
-            if self.t+1 == i:
-                nti = PartialHarvest(self.t0, self.t+1, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc).population()
-                nti_1 = PartialHarvest(self.t0, self.t, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc).population()
-                partial.append(nti_1-nti)
-            else:
-                partial.append(0)
+    # def harvested_population(self):
+    #     # dailyCulture = self.population()
+    #     partial = []
+    #     for i in self.doc:
+    #         if self.t+1 == i:
+    #             nti = PartialHarvest(self.t0, self.t+1, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc).population()
+    #             nti_1 = PartialHarvest(self.t0, self.t, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc).population()
+    #             partial.append(nti_1-nti)
+    #         else:
+    #             partial.append(0)
 
-        return sum(partial)
+    #     return sum(partial)
 
-    def biomass_harvest(self):
-        return self.wt() * self.harvested_population()
+    # def biomass_harvest(self):
+    #     return self.wt() * self.harvested_population()
 
     def harvest_cost(self, h):
         """
         h: harvest cost per kg
         """
-        return self.harvested_population() * h
+        return self.harvest_biomass() * h
 
     def fcr(self, formula_type=2, r=None):
         feed = self.feed_cost(1, formula_type, r) # we use fc = 1 to get the amount of feed

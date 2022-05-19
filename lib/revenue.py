@@ -18,7 +18,7 @@ def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial, doc):
         obj = PartialHarvest(t0, t, wn, w0, alpha, n0, sr, m, partial, doc)
 
         population.append(obj.population()*area)
-        biomassa.append(obj.biomassa())
+        biomassa.append(obj.biomassa()*area/1000)
         potential_revenue.append(obj.potential_revenue(f)*area)
         revenue.append(obj.realized_revenue(f)*area)
         wt.append(obj.wt())
