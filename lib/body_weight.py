@@ -17,7 +17,7 @@ def body_weight_section():
         # st.latex("")
             
         area = st.number_input("area", value=314)
-        alpha = st.number_input("alpha (shrimp growth rate)", value=0.013)
+        alpha = st.number_input("alpha (shrimp growth rate)", value=1)/100
 
         w0 = st.number_input("w0", value=0.05)
         wn = st.number_input("wn", value=75)
