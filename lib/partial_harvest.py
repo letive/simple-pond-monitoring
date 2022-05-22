@@ -42,7 +42,7 @@ class PartialHarvest:
             partial_harvest.append(self.ph[i] * heaviside_step(self.t - j))
 
         if self.t >= self.final_doc:           
-            partial_harvest.append((self.sr - sum(self.ph)) * heaviside_step(self.t - j))
+            partial_harvest.append((self.sr - sum(self.ph)) * heaviside_step(self.t - self.final_doc))
         
         result = self.n0 * (np.exp(-self.m * self.t) - sum(partial_harvest))
         return result
@@ -59,15 +59,21 @@ class PartialHarvest:
     #########################################
     # revenue
     #########################################
+    def harvest_final(self, t):
+        obj = PartialHarvest(self.t0, t, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc)
+        return obj.biomassa()
+
     def harvest_population(self):
-        if self.t in self.doc:
+        if (self.t in self.doc) or (self.t == self.final_doc):
             return self.population()
         else:
             return 0
 
     def harvest_biomass(self):
-        if self.t in self.doc:
+        if (self.t in self.doc):
             return self.biomassa()/1000
+        elif self.t == self.final_doc:
+            return self.harvest_final(self.t-1)/1000
         else:
             return 0
 

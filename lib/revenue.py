@@ -1,5 +1,5 @@
 from lib.partial_harvest import PartialHarvest
-from lib.helpers import price_function
+from lib.helpers import price_function, realize_counter
 import numpy as np
 
 def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120):
