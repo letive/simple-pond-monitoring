@@ -84,11 +84,11 @@ def base_section():
             ["Total Revenue", data["matrix"]["totalRevenue"]], 
             ["Total Expense", data["matrix"]["totalCost"]],
             ["Profit", data["matrix"]["profit"]],
-            ["Revenu Per PL", str(data["matrix"]["revenuePerPl"])],
-            ["Return On Opex", str(data["matrix"]["returnOnOpex"])],
-            ["Margin", str(data["matrix"]["margin"])],
+            # ["Revenu Per PL", str(data["matrix"]["revenuePerPl"])],
+            # ["Return On Opex", str(data["matrix"]["returnOnOpex"])],
+            ["Margin", str(round(data["matrix"]["margin"] * 100, 2)) + "%"],
             ["Yeild", str(data["matrix"]["yeild"])],
-            ["ADG", str(data["matrix"]["adg"])],
+            ["ADG", str(round(data["matrix"]["adg"], 2))],
             ["FCR", str(data["matrix"]["fcr"])]
         ])
 

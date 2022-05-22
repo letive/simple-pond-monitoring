@@ -1,6 +1,6 @@
 import numpy as np
 from lib.partial_harvest import PartialHarvest as ph
-from lib.helpers import price_function
+from lib.helpers import feed_formula3, price_function
 
 class constantCost:
     def __init__(self, t, final_doc) -> None:
@@ -52,14 +52,14 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
     realized_revenue = []
     labor = []
     adg = []
-    fcr = []
+    feed_formula = []
 
     harvest_population = []
     harvest_biomass = []
 
     f = price_function("data/fixed_price.csv")
 
-    m = np.log(sr)/T
+    m = -np.log(sr)/T
     times = range(0, T+1)
     for t in times:
         sub_cost = constantCost(t, final_doc)
@@ -78,14 +78,11 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
 
         realized_revenue.append(obj.realized_revenue(f)*area)
         adg.append(obj.adg())
-        fcr.append(obj.fcr(formula, r))
+        feed_formula.append(obj.feeding_formula(formula, r) * area)
 
         harvest_population.append(obj.harvest_population()* area)
         harvest_biomass.append(obj.harvest_biomass() * area)
 
-    
-    # bonusses[T] = bonus * sum(harvest_biomass)
-    # print(np.cumsum(harvest_biomass)[-1])
     bonusses[T] = bonus * np.cumsum(harvest_biomass)[-1]
 
     data = np.array([energy, probiotics, others, harvest, feeds, bonusses, labor])
@@ -110,9 +107,9 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
     cum_revenue = np.cumsum(realized_revenue)
     profit_t = cum_revenue - cost_t
 
-    yeild = (sum(harvest_biomass))/(area/1000)/1000 #ton/ha
-    fcr_t = sum(fcr)
-    # print(sum(harvest_biomass))
+    yeild = round(((np.cumsum(harvest_biomass)[-1])/1000 )/(area/10000), 2) #ton/ha
+    fcr_t = round(np.cumsum(feed_formula)[-1]/np.cumsum(harvest_biomass)[-1], 2)
+    
     result = {
         "index": ["energy_cost", "probiotics_cost", "others_cost",
             "harvest_cost", "feed_cost", "bonusses", "labor_cost"],
