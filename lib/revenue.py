@@ -2,7 +2,7 @@ from lib.partial_harvest import PartialHarvest
 from lib.helpers import price_function
 import numpy as np
 
-def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial, doc):
+def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120):
 
     revenue = []
     potential_revenue = []
@@ -15,7 +15,7 @@ def aggregation(t0, T, area, wn, w0, alpha, n0, sr, partial, doc):
     f = price_function("data/fixed_price.csv")
 
     for t in range(0, T+1):
-        obj = PartialHarvest(t0, t, wn, w0, alpha, n0, sr, m, partial, doc)
+        obj = PartialHarvest(t0, t, wn, w0, alpha, n0, sr, m, partial, doc, final_doc=final_doc)
 
         population.append(obj.population()*area)
         biomassa.append(obj.biomassa()*area/1000)

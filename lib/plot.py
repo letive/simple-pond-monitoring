@@ -11,7 +11,8 @@ class Line:
     def plot(self):
         legend = {
             "data": self.labels,
-            "show": self.legend
+            "show": self.legend,
+            "top": "10%"
         }
         series = [{
             "name": i[1],
@@ -54,7 +55,7 @@ class Pie:
             },
             "series": [
                 {
-                    "name": 'Access From',
+                    "name": 'Costing',
                     "type": 'pie',
                     "radius": radius,
                     "data": self.data,

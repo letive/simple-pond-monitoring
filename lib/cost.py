@@ -68,7 +68,7 @@ def costing(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, e, p, o,
         others.append(sub_cost.other_cost(o))
         labor.append(sub_cost.labor_cost(labor_cost))
 
-        obj = ph(t0, t, wn, w0, alpha, n0, sr, m, partial, doc)
+        obj = ph(t0, t, wn, w0, alpha, n0, sr, m, partial, doc, final_doc=final_doc)
         
         harvest.append(obj.harvest_cost(h) * area)
         feeds.append(obj.feed_cost(fc, formula, r)*area)

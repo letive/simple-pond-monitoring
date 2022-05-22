@@ -1,6 +1,6 @@
-from lib.body_weight import body_weight_section
+from lib.base_app import base_section
 
-body_weight_section()
+base_section()
 
 # Note dariku:
 # 1. Populasi, biomass dan revenue ngikutin pond area (jadinya total/bukan per m2)
