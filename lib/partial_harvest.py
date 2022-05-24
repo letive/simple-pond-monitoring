@@ -59,7 +59,7 @@ class PartialHarvest:
     #########################################
     # revenue
     #########################################
-    def harvest_final(self, t):
+    def harvest_tmin1(self, t):
         obj = PartialHarvest(self.t0, t, self.wn, self.w0, self.alpha, self.n0, self.sr, self.m, self.ph, self.doc, self.final_doc)
         return obj.biomassa()
 
@@ -71,9 +71,9 @@ class PartialHarvest:
 
     def harvest_biomass(self):
         if (self.t in self.doc):
-            return self.biomassa()/1000
+            return (self.harvest_tmin1(self.t-1) - self.biomassa())/1000
         elif self.t == self.final_doc:
-            return self.harvest_final(self.t-1)/1000
+            return (self.harvest_tmin1(self.t-1) - self.biomassa())/1000
         else:
             return 0
 
@@ -88,6 +88,7 @@ class PartialHarvest:
     # costing
     #########################################
     def feeding_formula(self, formula_type=2, r=None):
+         # biomassa * feed_rate
         if formula_type == 1:
             return self.biomassa()/1000 * r
         else:

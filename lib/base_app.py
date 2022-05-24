@@ -15,7 +15,7 @@ def base_section():
     T = st.sidebar.number_input("T", value=120)
         
     area = st.sidebar.number_input("area", value=1000)
-    alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1)/100 
+    alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1.0, step=1.,format="%.2f")/100 
 
     w0 = st.sidebar.number_input("w0", value=0.05)
     wn = st.sidebar.number_input("wn", value=75)
@@ -29,7 +29,7 @@ def base_section():
     docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
     docfinal = int(st.sidebar.number_input("doc final", value=120))
 
-    e = st.sidebar.number_input("energy day cost", value=3.14)
+    e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
     p = st.sidebar.number_input("daily probiotics", value=120000)
     o = st.sidebar.number_input("others cost", value=30000)
     labor = st.sidebar.number_input("labor cost", value=2000000)/30
