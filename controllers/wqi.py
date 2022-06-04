@@ -6,9 +6,17 @@ from lib.plot import Line
 from streamlit_echarts import st_echarts
 
 def wqi_dash():
+
+    st.title("Water Quality Index")
     
+    st.sidebar.markdown("## Upload Data")
     bio = st.sidebar.file_uploader("Biological Data")
+    with open("data/data_sample - biological.csv") as f:
+        st.sidebar.download_button('See the example of biological data', f, file_name='biological.csv')
+
     chem = st.sidebar.file_uploader("Chemical Data")
+    with open("data/data_sample - chemical.csv") as f:
+        st.sidebar.download_button('See the example of chemical data', f, file_name='chemical.csv')
     
     st.sidebar.markdown("## pH")
     ph_suitable_min = st.sidebar.number_input("pH suitable min", value=7.5, step=1.,format="%.2f") 
@@ -125,17 +133,17 @@ def wqi_dash():
 
     if submit:
         if (bio is not None) & (chem is not None):
-            st.write("Biological Data")
+            # st.write("Biological Data")
             bio_df = pd.read_csv(bio)
             bio_df.fillna(np.nan, inplace=True)
-            st.write(bio_df)
+            # st.write(bio_df)
 
-            st.write("Chemical Data")
+            # st.write("Chemical Data")
             chem_df = pd.read_csv(chem)
             chem_df.replace("-", np.nan, inplace=True)
             bio_df.fillna(np.nan, inplace=True)
             # df.replace(to_replace=[None], value=np.nan, inplace=True)
-            st.write(chem_df)
+            # st.write(chem_df)
 
             df = pd.DataFrame()
 
@@ -275,14 +283,85 @@ def wqi_dash():
             del plank_m
             del plank_a
 
-            st.write(df)
-
             quality, alert = water_quality_index(df)
 
-            option = Line("Water Quality Index", bio_df["Tanggal"].tolist(), [quality, alert], ["WQI", "Alert"], True).plot()
+            option = Line("WQI Alpha", bio_df["Tanggal"].tolist(), [quality, alert], ["WQI", "Alert"], True).plot()
             
             st_echarts(options=option)
 
             beta_score = betha_wqi(df)
             option2 = Line("WQI Beta", bio_df["Tanggal"].tolist(), [beta_score], ["WQI"], True).plot()
             st_echarts(options=option2)
+
+            # single_score_type = st.selectbox('Pilih item', ['pH', 'Temperature', "Salinity", "DO", "Alkalinity", "Nitrit", "Nitrat", "NH4", "TOM", "Plankton"])
+        
+            st.markdown("### Single Item Scoring")
+
+            # if single_score_type == "pH":
+            with st.expander("pH"):
+                st_echarts(
+                    options=Line("pH", bio_df["Tanggal"].tolist(), [df["ph_score_a"].tolist(), df["ph_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "Temperature":
+            with st.expander("Temperature"):
+                st_echarts(
+                    options=Line("Temperature", bio_df["Tanggal"].tolist(), [df["temperature_score_a"].tolist(), df["temperature_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "Salinity":
+            with st.expander("Salinity"):
+                st_echarts(
+                    options=Line("Salinity", bio_df["Tanggal"].tolist(), [df["sal_score_a"].tolist(), df["sal_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "DO":
+            with st.expander("Dissolve Oxygen"):
+                st_echarts(
+                    options=Line("DO", bio_df["Tanggal"].tolist(), [df["do_score_s"].tolist(), df["do_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "Alkalinity":
+            with st.expander("Alkalinity"):
+                st_echarts(
+                    options=Line("Alkalinity", bio_df["Tanggal"].tolist(), [df["alkaline_score"].tolist()], ["Score"], True).plot()
+                )
+            # elif single_score_type == "Nitrit":
+            with st.expander("Nitrit"):
+                st_echarts(
+                    options=Line("Nitrit", bio_df["Tanggal"].tolist(), [df["no2_score_a"].tolist(), df["no2_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "Nitrat":
+            with st.expander("Nitrat"):
+                st_echarts(
+                    options=Line("Nitrat", bio_df["Tanggal"].tolist(), [df["no3_score_a"].tolist(), df["no3_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "NH4":
+            with st.expander("NH4"):
+                st_echarts(
+                    options=Line("NH4", bio_df["Tanggal"].tolist(), [df["nh4_score_a"].tolist(), df["nh4_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # elif single_score_type == "TOM":
+            with st.expander("Total Organic Matter"):
+                st_echarts(
+                    options=Line("TOM", bio_df["Tanggal"].tolist(), [df["tom_score_m"].tolist()], ["Score"], True).plot()
+                )
+            # elif single_score_type =="Plankton":
+            with st.expander("Plankton"):
+                st_echarts(
+                    options=Line("Plankton", bio_df["Tanggal"].tolist(), [df["plankton_score_a"].tolist(), df["plankton_score_m"].tolist()], ["Afternoon", "Morning"], True).plot()
+                )
+            # else:
+            #     st_echarts(
+            #         options=Line("Plankton", bio_df["Tanggal"].tolist(), [df["plankton_score_a"].tolist(), df["plankton_score_a"].tolist()], ["Afternoon", "Morning"], True).plot()
+            #     )
+
+            st.markdown("### Raw Data")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write("biological data")
+                st.write(bio_df)
+            with col2:
+                st.write("chemical data")
+                st.write(chem_df)
+
+            st.download_button("Download for the computational result", df.to_csv(), "data_scoring.csv", "text/csv", key='download-csv')
+        
+        else:
+            st.warning("Error. Maybe the system is error or you didn't upload data yet")

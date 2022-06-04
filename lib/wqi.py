@@ -126,7 +126,8 @@ class Scoring:
             optimal_min, 
             optimal_max, 
             limit, 
-            weight
+            weight,
+            2
         )
         return do_s, do_m, w_do_s, w_do_m
 
@@ -180,7 +181,8 @@ class Scoring:
             optimal_min, 
             optimal_max, 
             limit, 
-            weight
+            weight,
+            3
         )
         return nh_m, nh_a, w_nh_m, w_nh_a
 

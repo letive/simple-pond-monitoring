@@ -61,7 +61,7 @@ def score4(m, suitable_min, suitable_max, optimal_min, optimal_max, upper_limit)
         
     return ret
 
-def data_scoring(morning, afternoon, suitable_min, suitable_max, optimal_min, optimal_max, limit, weight=1):
+def data_scoring(morning, afternoon, suitable_min, suitable_max, optimal_min, optimal_max, limit, weight=1, score_type=1):
     """
     morning: salinities, ph, temperature data in the morning
     afternoon: salinities, ph, temperature data in the noon
@@ -81,13 +81,23 @@ def data_scoring(morning, afternoon, suitable_min, suitable_max, optimal_min, op
     m_score = []
     a_score = []
     for x in enumerate(morning):
-        m_score.append(score(x[1], suitable_min, suitable_max, optimal_min, optimal_max, limit))
-        a_score.append(score(afternoon[x[0]], suitable_min, suitable_max, optimal_min, optimal_max, limit))
+        if score_type == 1:
+            m_score.append(score(x[1], suitable_min, suitable_max, optimal_min, optimal_max, limit))
+            a_score.append(score(afternoon[x[0]], suitable_min, suitable_max, optimal_min, optimal_max, limit))
+        elif score_type == 2:
+            m_score.append(score2(x[1], suitable_min, optimal_min))
+            a_score.append(score2(afternoon[x[0]], suitable_min, optimal_min))
+        elif score_type == 3:
+            m_score.append(score3(x[1], suitable_min, suitable_max, optimal_min, optimal_max, limit))
+            a_score.append(score3(afternoon[x[0]], suitable_min, suitable_max, optimal_min, optimal_max, limit))
+        else:
+            m_score.append(score4(x[1], suitable_min, suitable_max, optimal_min, optimal_max, limit))
+            a_score.append(score4(afternoon[x[0]], suitable_min, suitable_max, optimal_min, optimal_max, limit))
 
     return m_score, a_score, (weight*np.array(m_score)).tolist(), (weight*np.array(a_score)).tolist()
 
 
-def single_data_scoring(data, suitable_min, suitable_max, optimal_min, optimal_max, limit, weight=1):
+def single_data_scoring(data, suitable_min, suitable_max, optimal_min, optimal_max, limit, weight=1, score_type=1):
     """
     data: single data to be scored
     suittable_min: minimum suitable value of the trapezoidal function score
@@ -102,7 +112,14 @@ def single_data_scoring(data, suitable_min, suitable_max, optimal_min, optimal_m
 
     data_score = []
     for x in data:
-        data_score.append(score(x, suitable_min, suitable_max, optimal_min, optimal_max, limit))
+        if score_type == 1:
+            data_score.append(score(x, suitable_min, suitable_max, optimal_min, optimal_max, limit))
+        elif score_type == 2:
+            data_score.append(score2(x, suitable_min, optimal_min))
+        elif score_type == 3:
+            data_score.append(score3(x, suitable_min, suitable_max, optimal_min, optimal_max, limit))
+        else:
+            data_score.append(score4(x, suitable_min, suitable_max, optimal_min, optimal_max, limit))
 
     return data_score, (weight*np.array(data_score)).tolist()
 
