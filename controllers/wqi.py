@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from lib.wqi import Scoring, water_quality_index
+from lib.wqi import Scoring, water_quality_index, betha_wqi
 from lib.plot import Line
 from streamlit_echarts import st_echarts
 
@@ -148,6 +148,7 @@ def wqi_dash():
             df["w_ph_score_m"] = w_ph_m
             df["ph_score_a"] = ph_a
             df["w_ph_score_a"] = w_ph_a
+            df["weight_ph"] = ph_weight
 
             del ph_m 
             del w_ph_m
@@ -161,6 +162,7 @@ def wqi_dash():
             df["w_temp_m"] = w_temp_m
             df["temperature_score_a"] = temp_a
             df["w_temp_a"] = w_temp_a
+            df["weight_temperature"] = temp_weight
 
             del temp_m 
             del w_temp_m
@@ -174,6 +176,7 @@ def wqi_dash():
             df["w_sal_score_m"] = w_sal_m
             df["sal_score_a"] = sal_a
             df["w_sal_score_a"] = w_sal_a
+            df["weight_salinity"] = sal_weight
 
             del sal_m 
             del w_sal_m
@@ -189,6 +192,7 @@ def wqi_dash():
             df["w_do_score_s"] = w_do_s
             df["do_score_m"] = do_m
             df["w_do_score_m"] = w_do_m
+            df["weight_do"] = do_weight
 
             del do_s 
             del w_do_s
@@ -200,6 +204,7 @@ def wqi_dash():
             
             df["alkaline_score"] = alk
             df["w_alkaline_score"] = w_alk 
+            df["weight_alkaline"] = al_weight
 
             del alk
             del w_alk
@@ -211,6 +216,7 @@ def wqi_dash():
             df["w_no2_score_m"] = w_no2_m
             df["no2_score_a"] = no2_a
             df["w_no2_score_a"] = w_no2_a 
+            df["weight_no2"] = no2_weight
 
             del no2_m
             del no2_a
@@ -224,6 +230,7 @@ def wqi_dash():
             df["w_no3_score_m"] = w_no3_m
             df["no3_score_a"] = no3_a
             df["w_no3_score_a"] = w_no3_a
+            df["weight_no3"] = no3_weight
 
             del no3_m
             del w_no3_m
@@ -237,6 +244,7 @@ def wqi_dash():
             df["w_nh4_score_m"] = w_nh_m
             df["nh4_score_a"] = nh_a
             df["w_nh4_score_a"] = w_nh_a
+            df["weight_nh4"] = nh4_weight
 
             del nh_m
             del nh_a
@@ -248,6 +256,7 @@ def wqi_dash():
             
             df["tom_score_m"] = tom_m
             df["w_tom_score_m"] = w_tom_m
+            df["weight_tom"] = tom_weight
 
             del tom_m
             del w_tom_m
@@ -259,6 +268,7 @@ def wqi_dash():
             df["w_plankton_score_m"] = w_plank_m
             df["plankton_score_a"] = plank_a
             df["w_plankton_score_a"] = w_plank_a
+            df["weight_plankton"] = plank_weight
 
             del w_plank_m
             del w_plank_a
@@ -272,3 +282,7 @@ def wqi_dash():
             option = Line("Water Quality Index", bio_df["Tanggal"].tolist(), [quality, alert], ["WQI", "Alert"], True).plot()
             
             st_echarts(options=option)
+
+            beta_score = betha_wqi(df)
+            option2 = Line("WQI Beta", bio_df["Tanggal"].tolist(), [beta_score], ["WQI"], True).plot()
+            st_echarts(options=option2)

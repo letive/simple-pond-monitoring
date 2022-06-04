@@ -1,4 +1,4 @@
-from lib.quality_scoring import data_scoring, single_data_scoring
+from lib.quality_scoring import data_scoring, score, single_data_scoring
 import pandas as pd
 import numpy as np
 
@@ -41,6 +41,35 @@ def water_quality_index(df):
             alert.append(df.loc[i].sum())
     
     return quality, alert
+
+def betha_wqi(df):
+    """
+    df: Dataframe
+    """
+    weight_cols = [col for col in df.columns if 'weight_' in col]
+    score_cols = [col for col in df.columns if ('weight_' not in col) and ('w_' not in col)]
+    w_times_cols = [col for col in df.columns if 'w_' in col]
+
+    df1 = df[weight_cols]
+    df2 = df[score_cols]
+    df3 = df[w_times_cols]
+
+    beta_score = []
+    x,_ = df.shape
+
+    for i in range(x):
+        if any(df2.loc[i]<0):
+            # print(df2.loc[i].min(), df3.loc[i].sum(), df1.loc[i].sum(), i)
+            beta_score.append(df2.loc[i].min() * df3.loc[i].sum()/df1.loc[i].sum())
+        else:
+            # print(df3.loc[i].sum(), df1.loc[i].sum(), i)
+            beta_score.append(df3.loc[i].sum()/df1.loc[i].sum())
+    
+    del df1
+    del df2 
+    del df3
+
+    return beta_score
 
 
 class Scoring:
