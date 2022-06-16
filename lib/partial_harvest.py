@@ -1,6 +1,25 @@
 from lib.helpers import body_weight, heaviside_step, feed_formula3
 import numpy as np
 
+from scipy.integrate import quad
+
+
+# def body_wght(wn, w0, alpha, t0, t):
+#     """
+#     wn: wn
+#     w0: w0
+#     alpha: growth rate
+#     t0: t0
+#     t: t
+#     f: spline function criterion
+#     f1: spline function for temperature
+#     """
+#     def interpolate(x):
+#         return f(f1(x))
+
+#     wt = wn**(1/3) - (wn**(1/3) - w0**(1/3)) * np.exp(-alpha*(quad(interpolate, t0, t)[0]))
+#     return wt**3
+
 # base function per m2 in t 
 
 class PartialHarvest:
@@ -29,8 +48,12 @@ class PartialHarvest:
         self.doc = doc
         self.final_doc = final_doc
 
+    # @staticmethod
+    # def function_wt(x):
+    #     return x
     def wt(self):
         return body_weight(self.wn, self.w0, self.alpha, self.t0, self.t)
+        # return self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * np.exp(-self.alpha*(quad(self.function_wt, self.t0, self.t)[0]))
 
     # def SR(self):
     #     m = np.log(self.sr)/self.t if self.t != 0 else 0
