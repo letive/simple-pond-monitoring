@@ -5,28 +5,54 @@ from lib.feeding_rate import feeding_rate
 from lib.cost_construction import ConstantCost
 import numpy as np
 
-f = price_function("data/fixed_price.csv")
+def set_global_variable(
+    temp_suit_min=25,
+    temp_suit_max=33,
+    temp_opt_min=28,
+    temp_opt_max=32,
+    do_suit_min=4,
+    do_suit_max=10,
+    do_opt_min=6,
+    do_opt_max=9,
+    ua_suit_min=0.00,
+    ua_suit_max=0.16,
+    ua_opt_min=0.00,
+    ua_opt_max=0.06,
+    csc_suit_min = 0.00,
+    csc_suit_max = 5,
+    csc_opt_min = 0.00,
+    csc_opt_max = 3,
+    chem_path = "data/data_chemical_v2.csv",
+    bio_path = "data/data_sample - biological.csv"
+):
+    global f
+    global f_uia, f_o2, f_temp, temperature
+    global csc_suitable_min, csc_suitable_max, csc_optimal_min, csc_optimal_max
 
-f_uia, f_o2, f_temp, temperature = source_data(
-    temp_suitable_min=25,
-    temp_suitable_max=33,
-    temp_optimal_min=28,
-    temp_optimal_max=32,
-    do_suitable_min=4,
-    do_suitable_max=10,
-    do_optimal_min=6,
-    do_optimal_max=9,
-    ua_suitable_min=0.00,
-    ua_suitable_max=0.16,
-    ua_optimal_min=0.00,
-    ua_optimal_max=0.06,
-)
+    f = price_function("data/fixed_price.csv")
+
+    f_uia, f_o2, f_temp, temperature = source_data(
+        temp_suitable_min=temp_suit_min,
+        temp_suitable_max=temp_suit_max,
+        temp_optimal_min=temp_opt_min,
+        temp_optimal_max=temp_opt_max,
+        do_suitable_min=do_suit_min,
+        do_suitable_max=do_suit_max,
+        do_optimal_min=do_opt_min,
+        do_optimal_max=do_opt_max,
+        ua_suitable_min=ua_suit_min,
+        ua_suitable_max=ua_suit_max,
+        ua_optimal_min=ua_opt_min,
+        ua_optimal_max=ua_opt_max,
+        chemical_path = chem_path,
+        biological_path = bio_path
+    )
 
 
-csc_suitable_min = 0.00
-csc_suitable_max = 5
-csc_optimal_min = 0.00
-csc_optimal_max = 3
+    csc_suitable_min = csc_suit_min
+    csc_suitable_max = csc_suit_max
+    csc_optimal_min = csc_opt_min
+    csc_optimal_max = csc_opt_max
 
 
 def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **kwargs):
@@ -46,6 +72,7 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
     harvest_cost = []
 
     cum_integral = 0
+    growth_curve = []
 
     for i in range(T + 1):
         if i == 0:
@@ -78,6 +105,7 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
             nt = obj.population()
             biomass = obj.biomassa()
             constant_biomass = obj.biomassa_constant()
+
             cum_integral = obj._fr()
             ph = Compute(t0, i, doc, wt, nt, biomass, 0, constant_biomass, final_doc)
         else:
@@ -116,7 +144,9 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
             nt = obj.population()
             biomass = obj.biomassa()
             constant_biomass = obj.biomassa_constant()
+
             cum_integral = obj._fr()
+            
             ph = Compute(
                 t0, i, doc, wt, nt, biomass, biomassa[-1], constant_biomass, final_doc
             )
@@ -126,6 +156,8 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
         population.append(nt * area)
         revenue.append(ph.realized_revenue(f) * area)
         potential_revenue.append(ph.potential_revenue(f) * area)
+
+        growth_curve.append(cum_integral)
 
         adg.append(ph.adg())
         feed_formula.append(ph._feeding_formula(kwargs["formula"], kwargs["r"]) * area)
@@ -150,6 +182,7 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
         "harvest_population": harvest_population,
         "harvest_biomass": harvest_biomass,
         "harvest_cost": harvest_cost,
+        "growth_curve": growth_curve
     }
 
     return result
@@ -282,6 +315,9 @@ def cost_structure(
             "biomassa": data["biomassa"],
             "revenue": data["cumulative_revenue"],
             "potential_revenue": data["potential_revenue"],
+            "body_weight": data["body_weight"],
+            "population": data["population"],
+            "fr": data["growth_curve"]
         },
     }
     return result
