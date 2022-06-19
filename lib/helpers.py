@@ -42,8 +42,18 @@ def left_trapezoidal(m, suitable_min, suitable_max, optimal_max):
 
 
 def source_data(**kwargs):
-    chem = pd.read_csv("data/data_chemical_v2.csv")
-    bio = pd.read_csv("data/data_sample - biological.csv")
+    try:
+        chem = pd.read_csv(kwargs["chemical_path"])
+        bio = pd.read_csv(kwargs["biological_path"])
+
+        bio.replace("-", np.nan, inplace=True)
+        bio.fillna(np.nan, inplace=True)
+        
+        chem.replace("-", np.nan, inplace=True)
+        chem.fillna(np.nan, inplace=True)
+    except:
+        chem = pd.read_csv("data/data_chemical_v2.csv")
+        bio = pd.read_csv("data/data_sample - biological.csv")
 
     doc = chem["Doc"].tolist()
 
@@ -85,9 +95,9 @@ def source_data(**kwargs):
     f_o2 = CubicSpline(doc, score_o2)
     f_temp = CubicSpline(doc, score_temp)
 
-    temperature = bio[["DOC", "Suhu_s"]]
+    suhu = bio[["DOC", "Suhu_s"]]
 
-    return f_uia, f_o2, f_temp, temperature
+    return f_uia, f_o2, f_temp, suhu
 
 
 def score_csc_compute(
