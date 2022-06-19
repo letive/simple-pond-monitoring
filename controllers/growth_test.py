@@ -1,7 +1,9 @@
 import streamlit as st
 import numpy as np
 from lib.growth_function import GrowthFunction
-from lib.partial_harvest import PartialHarvest
+# from lib.partial_harvest import PartialHarvest
+from lib.metrices import Compute
+from lib.biomass import Biomassa
 from lib.plot import Line
 from streamlit_echarts import st_echarts
 import pandas as pd
@@ -67,7 +69,7 @@ def growth():
     alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1.0, step=1.,format="%.2f")/100 
 
     w0 = st.sidebar.number_input("w0", value=0.05)
-    wn = st.sidebar.number_input("wn", value=75)
+    wn = st.sidebar.number_input("wn", value=40)
 
     partial1 = st.sidebar.number_input("partial1", value=0.1)
     partial2 = st.sidebar.number_input("partial2", value=0.1)
@@ -100,6 +102,7 @@ def growth():
             m = -np.log(sr)/T
             for i in range(T):
                 if i == 0:
+                    obj = Biomassa(t0, i, wn, w0, alpha, n0, sr, m, [partial1, partial2, partial3], [docpartial1, docpartial2, docpartial3], )
                     obj = PartialHarvest(t0, i, wn, w0, alpha, n0, sr, m, [partial1, partial2, partial3], [docpartial1, docpartial2, docpartial3], docfinal)
                 else:
                     obj = PartialHarvest(t0, i, wn, w0, data_alpha[-1], n0, sr, m, [partial1, partial2, partial3], [docpartial1, docpartial2, docpartial3], docfinal)
