@@ -1,52 +1,103 @@
-import numpy as np
 import pandas as pd
+import numpy as np
 from scipy.interpolate import CubicSpline
+
 
 def heaviside_step(x):
     return np.heaviside([x], 1)[0]
 
-def pl_harvest(init_pl, sr, partial_rate):
-    """
-    init_pl: initial of PL 
-    sr: survival rate
-    partial_rate: partial harvest rate in each harvesting
-    """
-    return init_pl*sr*partial_rate
 
-def body_weight(wn, w0, alpha, t0, t, hx=1):
+def normal_trapezoidal(m, suitable_min, suitable_max, optimal_min, optimal_max):
     """
-    wn: shrimp max weight g
-    w0: shrimp stocking weight (initial weight)
-    alpha: shrimp growth rate
-    t0: initial time
-    t: time
-    hx: constant derive function. default 1.
+    m: value in t
     """
-    wt = wn**(1/3) - (wn**(1/3) - w0**(1/3)) * np.exp(-alpha*(hx*t - hx*t0))
-    return wt**3
+    if np.isnan(m):
+        ret = 0.25
+    elif (m < suitable_min) or (m > suitable_max):
+        ret = 0
+    else:
+        ret = min(
+            (
+                (m - suitable_min) / (optimal_min - suitable_min),
+                1,
+                (suitable_max - m) / (suitable_max - optimal_max),
+            )
+        )
 
-def count_biomassa(w, t, sr=0.8):
-    """
-    w: weight ke-t
-    t: jumlah tebar
-    sr: survival rate
-    """
-    b = w * t * sr
-    return b
+    return ret
 
-def size_count(w):
-    """
-    w: weight ke-t
-    """
-    return 1000/w
 
-def realize_counter(a: float, w: int, p: float):
+def left_trapezoidal(m, suitable_min, suitable_max, optimal_max):
     """
-    a: persentase panen
-    w: weight ke n
-    p: price 
+    m: value in t
     """
-    return a*w*p
+    if np.isnan(m):
+        ret = 0.25
+    elif (m < suitable_min) or (m > suitable_max):
+        ret = 0
+    else:
+        ret = min((1, (suitable_max - m) / (suitable_max - optimal_max)))
+
+    return ret
+
+
+def source_data(**kwargs):
+    chem = pd.read_csv("data/data_chemical_v2.csv")
+    bio = pd.read_csv("data/data_sample - biological.csv")
+
+    doc = chem["Doc"].tolist()
+
+    score_uia = []
+    score_o2 = []
+    score_temp = []
+
+    for i in doc:
+        score_uia.append(
+            left_trapezoidal(
+                chem[chem["Doc"] == i]["uia"].values[0],
+                kwargs["ua_suitable_min"],
+                kwargs["ua_suitable_max"],
+                kwargs["ua_optimal_max"],
+            )
+        )
+
+        score_o2.append(
+            normal_trapezoidal(
+                bio[bio["DOC"] == i]["DO_s"].values[0],
+                kwargs["do_suitable_min"],
+                kwargs["do_suitable_max"],
+                kwargs["do_optimal_min"],
+                kwargs["do_optimal_max"],
+            )
+        )
+
+        score_temp.append(
+            normal_trapezoidal(
+                bio[bio["DOC"] == i]["Suhu_s"].values[0],
+                kwargs["temp_suitable_min"],
+                kwargs["temp_suitable_max"],
+                kwargs["temp_optimal_min"],
+                kwargs["temp_optimal_max"],
+            )
+        )
+
+    f_uia = CubicSpline(doc, score_uia)
+    f_o2 = CubicSpline(doc, score_o2)
+    f_temp = CubicSpline(doc, score_temp)
+
+    temperature = bio[["DOC", "Suhu_s"]]
+
+    return f_uia, f_o2, f_temp, temperature
+
+
+def score_csc_compute(
+    biomass, volume, csc_suitable_min=0.00, csc_suitable_max=5, csc_optimal_max=3
+):
+
+    return left_trapezoidal(
+        biomass / volume, csc_suitable_min, csc_suitable_max, csc_optimal_max
+    )
+
 
 def price_function(path, sep=";", col_size="size_count", col_price="price"):
     """
@@ -61,37 +112,6 @@ def price_function(path, sep=";", col_size="size_count", col_price="price"):
     f = CubicSpline(x_sample, y_sample, bc_type="natural")
     return f
 
-def biomass_harvest(data, T, docpartial1, docpartial2, docpartial3):
-    """
-    data: biomassa data
-    docpartial1: docpartial1
-    docpartial2: docpartial2
-    docpartial3: docpartial3
-    """
-
-
-    if (T >= docpartial1+1) & (T<docpartial2+1):
-        b1 =  data[docpartial1+1] - data[docpartial1]
-        b2 = 0
-        b3 = 0
-        b4 = 0
-    elif (T >=docpartial2+1) & (T <docpartial3+1):
-        b1 = data[docpartial1+1] - data[docpartial1]
-        b2 = data[docpartial2+1] - data[docpartial2]
-        b3 = 0
-        b4 = 0
-    elif (T>=docpartial3+1):
-        b1 = data[docpartial1+1] - data[docpartial1]
-        b2 = data[docpartial2+1] - data[docpartial2]
-        b3 = data[docpartial3+1] - data[docpartial3]
-        b4 = data[T]
-    else:
-        b1 = 0
-        b2 = 0
-        b3 = 0
-        b4 = 0
-
-    return b1, b2, b3, b4
 
 def feed_formula3(path, sep=";", colname="Formula 3"):
     df = pd.read_csv(path, sep=sep)
