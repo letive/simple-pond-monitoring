@@ -44,12 +44,12 @@ def base_section():
         data = cost_structure(t0, T, area, wn, w0, alpha, n0, sr, [partial1, partial2, partial3], [docpartial1, docpartial2, docpartial3], e, p, o, labor, bonus, h, r, fc, formula, docfinal)
         index = [t for t in range(t0, T+1)]
 
-        # option = Line("Individual weight in gr", index, [data["body_weight"]], ["Wt"]).plot()
+        # option = Line("Individual weight in gr", index, [data["revenue"]["body_weight"]], ["Wt"]).plot()
         # st_echarts(options=option)
 
         partial4 = sr-partial1-partial2-partial3
         if partial4 >= 0:
-            # option1 = Line("Population", index, [data["population"]], ["Population"]).plot()
+            # option1 = Line("Population", index, [data["revenue"]["population"]], ["Population"]).plot()
             # st_echarts(options=option1)
 
             col1, col2 = st.columns(2)

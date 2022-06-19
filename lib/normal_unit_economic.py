@@ -48,75 +48,27 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
     cum_integral = 0
 
     for i in range(T + 1):
+        obj = Biomassa(
+            t0,
+            i,
+            wn,
+            w0,
+            alpha,
+            n0,
+            sr,
+            m,
+            partial,
+            doc,
+            final_doc,
+        )
+        wt = obj.wt()
+        nt = obj.population()
+        biomass = obj.biomassa()
+        constant_biomass = obj.biomassa_constant()
+        
         if i == 0:
-            # score_csc = score_csc_compute(
-            #     0 / 1000, 0.01, csc_suitable_min, csc_suitable_max, csc_optimal_max
-            # )
-            # feedRate = feeding_rate(
-            #     0, float(temperature[temperature["DOC"] == i - 1]["Suhu_s"]), 0
-            # )
-            obj = Biomassa(
-                t0,
-                i,
-                wn,
-                w0,
-                alpha,
-                n0,
-                sr,
-                m,
-                partial,
-                doc,
-                # f_uia,
-                # f_o2,
-                # f_temp,
-                # score_csc,
-                # feedRate,
-                # cum_integral,
-                final_doc,
-            )
-            wt = obj.wt()
-            nt = obj.population()
-            biomass = obj.biomassa()
-            constant_biomass = obj.biomassa_constant()
-            # cum_integral = obj._fr()
             ph = Compute(t0, i, doc, wt, nt, biomass, 0, constant_biomass, final_doc)
         else:
-            # score_csc = score_csc_compute(
-            #     biomassa[-1] / 1000,
-            #     1000,
-            #     csc_suitable_min,
-            #     csc_suitable_max,
-            #     csc_optimal_max,
-            # )
-            # feedRate = feeding_rate(
-            #     weight[-1],
-            #     float(temperature[temperature["DOC"] == i - 1]["Suhu_s"]),
-            #     biomassa[-1] / 1000,
-            # )
-            obj = Biomassa(
-                i - 1,
-                i,
-                wn,
-                w0,
-                alpha,
-                n0,
-                sr,
-                m,
-                partial,
-                doc,
-                # f_uia,
-                # f_o2,
-                # f_temp,
-                # score_csc,
-                # feedRate,
-                # cum_integral,
-                final_doc,
-            )
-            wt = obj.wt()
-            nt = obj.population()
-            biomass = obj.biomassa()
-            constant_biomass = obj.biomassa_constant()
-            # cum_integral = obj._fr()
             ph = Compute(
                 t0, i, doc, wt, nt, biomass, biomassa[-1], constant_biomass, final_doc
             )
@@ -282,6 +234,8 @@ def cost_structure(
             "biomassa": data["biomassa"],
             "revenue": data["cumulative_revenue"],
             "potential_revenue": data["potential_revenue"],
+            "body_weight": data["body_weight"],
+            "population": data["population"]
         },
     }
     return result
