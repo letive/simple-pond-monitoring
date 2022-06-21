@@ -1,10 +1,10 @@
 import streamlit as st
 import numpy as np
-from lib.growth_function import GrowthFunction
+# from lib.growth_function import GrowthFunction
 
 from lib.unit_economic import set_global_variable, cost_structure
-from lib.metrices import Compute
-from lib.biomass import Biomassa
+from lib.uem.metrices import Compute
+from lib.uem.biomass import Biomassa
 from lib.plot import Line, Pie
 from streamlit_echarts import st_echarts
 import pandas as pd

@@ -1,5 +1,5 @@
 import numpy as np
-from lib.integrate_fr import Fungsi
+from lib.uem.integrate_fr import Fungsi
 from lib.helpers import heaviside_step
 
 
