@@ -1,8 +1,8 @@
-from lib.metrices import Compute
-from lib.biomass import Biomassa
+from lib.uem.metrices import Compute
+from lib.uem.biomass import Biomassa
 from lib.helpers import price_function, source_data, score_csc_compute
-from lib.feeding_rate import feeding_rate
-from lib.cost_construction import ConstantCost
+from lib.uem.feeding_rate import feeding_rate
+from lib.uem.cost_construction import ConstantCost
 import numpy as np
 
 def set_global_variable(
@@ -166,7 +166,7 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
         )
         harvest_population.append(ph.harvest_population() * area)
         harvest_biomass.append(ph.harvest_biomass() * area)
-        harvest_cost.append(ph.harvest_expense(kwargs["h"]))
+        harvest_cost.append(ph.harvest_expense(kwargs["h"]) * area)
 
     result = {
         "body_weight": weight,
