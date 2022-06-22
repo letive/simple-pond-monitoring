@@ -148,11 +148,12 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
             cum_integral = obj._fr()
             
             ph = Compute(
-                t0, i, doc, wt, nt, biomass, biomassa[-1], constant_biomass, final_doc
+                t0, i, doc, wt, nt, biomass, biomassa[-1]*1000/area, constant_biomass, final_doc
             )
 
         weight.append(wt)
         biomassa.append(biomass * area / 1000)
+
         population.append(nt * area)
         revenue.append(ph.realized_revenue(f) * area)
         potential_revenue.append(ph.potential_revenue(f) * area)
