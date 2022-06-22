@@ -70,7 +70,7 @@ def revenue(t0, T, area, wn, w0, alpha, n0, sr, partial, doc, final_doc=120, **k
             ph = Compute(t0, i, doc, wt, nt, biomass, 0, constant_biomass, final_doc)
         else:
             ph = Compute(
-                t0, i, doc, wt, nt, biomass, biomassa[-1], constant_biomass, final_doc
+                t0, i, doc, wt, nt, biomass, biomassa[-1]*1000/area, constant_biomass, final_doc
             )
 
         weight.append(wt)
