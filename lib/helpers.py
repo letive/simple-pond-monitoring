@@ -42,60 +42,102 @@ def left_trapezoidal(m, suitable_min, suitable_max, optimal_max):
 
 
 def source_data(**kwargs):
-    try:
-        chem = pd.read_csv(kwargs["chemical_path"])
-        bio = pd.read_csv(kwargs["biological_path"])
+    if kwargs["path"]:
+        df = pd.read_csv(kwargs["path"], sep=";") #Temp;DO;NH4;NO2;ABW;DOC
+        doc = df["DOC"].tolist()
+        score_uia = []
+        score_o2 = []
+        score_temp = []
 
-        bio.replace("-", np.nan, inplace=True)
-        bio.fillna(np.nan, inplace=True)
-        
-        chem.replace("-", np.nan, inplace=True)
-        chem.fillna(np.nan, inplace=True)
-    except:
-        chem = pd.read_csv("data/data_chemical_v2.csv")
-        bio = pd.read_csv("data/data_sample - biological.csv")
-
-    doc = chem["Doc"].tolist()
-
-    score_uia = []
-    score_o2 = []
-    score_temp = []
-
-    for i in doc:
-        score_uia.append(
-            left_trapezoidal(
-                chem[chem["Doc"] == i]["uia"].values[0],
-                kwargs["ua_suitable_min"],
-                kwargs["ua_suitable_max"],
-                kwargs["ua_optimal_max"],
+        for i in doc:
+            score_uia.append(
+                left_trapezoidal(
+                    df[df["DOC"] == i]["NH4"].values[0],
+                    kwargs["ua_suitable_min"],
+                    kwargs["ua_suitable_max"],
+                    kwargs["ua_optimal_max"],
+                )
             )
-        )
 
-        score_o2.append(
-            normal_trapezoidal(
-                bio[bio["DOC"] == i]["DO_s"].values[0],
-                kwargs["do_suitable_min"],
-                kwargs["do_suitable_max"],
-                kwargs["do_optimal_min"],
-                kwargs["do_optimal_max"],
+            score_o2.append(
+                normal_trapezoidal(
+                    df[df["DOC"] == i]["DO"].values[0],
+                    kwargs["do_suitable_min"],
+                    kwargs["do_suitable_max"],
+                    kwargs["do_optimal_min"],
+                    kwargs["do_optimal_max"],
+                )
             )
-        )
 
-        score_temp.append(
-            normal_trapezoidal(
-                bio[bio["DOC"] == i]["Suhu_s"].values[0],
-                kwargs["temp_suitable_min"],
-                kwargs["temp_suitable_max"],
-                kwargs["temp_optimal_min"],
-                kwargs["temp_optimal_max"],
+            score_temp.append(
+                normal_trapezoidal(
+                    df[df["DOC"] == i]["Temp"].values[0],
+                    kwargs["temp_suitable_min"],
+                    kwargs["temp_suitable_max"],
+                    kwargs["temp_optimal_min"],
+                    kwargs["temp_optimal_max"],
+                )
             )
-        )
+
+            suhu = df[["DOC", "Temp"]]
+
+    else:
+        try:
+            chem = pd.read_csv(kwargs["chemical_path"])
+            bio = pd.read_csv(kwargs["biological_path"])
+
+            bio.replace("-", np.nan, inplace=True)
+            bio.fillna(np.nan, inplace=True)
+            
+            chem.replace("-", np.nan, inplace=True)
+            chem.fillna(np.nan, inplace=True)
+        except:
+            chem = pd.read_csv("data/data_chemical_v2.csv")
+            bio = pd.read_csv("data/data_sample - biological.csv")
+
+        doc = chem["Doc"].tolist()
+
+        score_uia = []
+        score_o2 = []
+        score_temp = []
+
+        for i in doc:
+            score_uia.append(
+                left_trapezoidal(
+                    chem[chem["Doc"] == i]["uia"].values[0],
+                    kwargs["ua_suitable_min"],
+                    kwargs["ua_suitable_max"],
+                    kwargs["ua_optimal_max"],
+                )
+            )
+
+            score_o2.append(
+                normal_trapezoidal(
+                    bio[bio["DOC"] == i]["DO_s"].values[0],
+                    kwargs["do_suitable_min"],
+                    kwargs["do_suitable_max"],
+                    kwargs["do_optimal_min"],
+                    kwargs["do_optimal_max"],
+                )
+            )
+
+            score_temp.append(
+                normal_trapezoidal(
+                    bio[bio["DOC"] == i]["Suhu_s"].values[0],
+                    kwargs["temp_suitable_min"],
+                    kwargs["temp_suitable_max"],
+                    kwargs["temp_optimal_min"],
+                    kwargs["temp_optimal_max"],
+                )
+            )
+
+            suhu = bio[["DOC", "Suhu_s"]]
 
     f_uia = CubicSpline(doc, score_uia)
     f_o2 = CubicSpline(doc, score_o2)
     f_temp = CubicSpline(doc, score_temp)
 
-    suhu = bio[["DOC", "Suhu_s"]]
+    
 
     return f_uia, f_o2, f_temp, suhu
 
