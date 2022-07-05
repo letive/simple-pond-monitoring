@@ -8,6 +8,7 @@ import numpy as np
 f = price_function("data/fixed_price.csv")
 
 f_uia, f_o2, f_temp, temperature = source_data(
+    path = None,
     temp_suitable_min=25,
     temp_suitable_max=33,
     temp_optimal_min=28,

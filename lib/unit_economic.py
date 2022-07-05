@@ -32,6 +32,7 @@ def set_global_variable(
     f = price_function("data/fixed_price.csv")
 
     f_uia, f_o2, f_temp, temperature = source_data(
+        path = None,
         temp_suitable_min=temp_suit_min,
         temp_suitable_max=temp_suit_max,
         temp_optimal_min=temp_opt_min,

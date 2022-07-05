@@ -25,4 +25,4 @@ class Fungsi:
             return temp + o2 + uia + self.score_csc + self.feeding_rate
 
     def get_integral(self):
-        return quad(self._integrate_function, self.a, self.b, limit=1500)
+        return quad(self._integrate_function, self.a, self.b, limit=3000)
