@@ -30,6 +30,14 @@ def base_section():
     docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
     docfinal = int(st.sidebar.number_input("doc final", value=120))
 
+    # condition = st.sidebar.expander("Conditional Configuration")
+
+    st.sidebar.markdown("## Upload Data")
+    df = st.sidebar.file_uploader("Growth Shrimp Data")
+    with open("data/growth_full.csv") as f:
+        st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
+
+
     # e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
     # p = st.sidebar.number_input("daily probiotics", value=120000)
     # o = st.sidebar.number_input("others cost", value=30000)
@@ -50,29 +58,37 @@ def base_section():
                                                     df["DOC"].tolist(), df["ABW"].tolist(), docfinal).fitting()
 
 
-        st.latex(
-            r"""
-            \alpha = {}
-            """.format(alpha)
-        )
+        col1, col2 = st.columns(2)
 
-        st.latex(
-            r"""\alpha_2 = {}""".format(alpha2)
-        )
+        with col1:
+            st.markdown("## Parameter")
+            st.latex(
+                r"""
+                \alpha = {}
+                """.format(alpha)
+            )
 
-        st.latex(
-            r"""\alpha_3 = {}""".format(alpha3)
-        )
-        st.latex(
-            r"""\alpha_4 = {}""".format(alpha4)
-        )
-        st.latex(
-            r"""\alpha_5 = {}""".format(alpha5)
-        )
-        st.latex(
-            r"""\alpha_6 ={}""".format(alpha6)
-        )
+            st.latex(
+                r"""\alpha_2 = {}""".format(alpha2)
+            )
+
+            st.latex(
+                r"""\alpha_3 = {}""".format(alpha3)
+            )
+            st.latex(
+                r"""\alpha_4 = {}""".format(alpha4)
+            )
+            st.latex(
+                r"""\alpha_5 = {}""".format(alpha5)
+            )
+            st.latex(
+                r"""\alpha_6 ={}""".format(alpha6)
+            )
         
+        with col2:
+            # dataframe
+            st.dataframe(df)
+
         m = -np.log(sr)/T
 
         weight = []
