@@ -1,10 +1,12 @@
+from cProfile import label
 import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.parameter_estimation import Estimate
 from lib.biomass_after_estimate import single_wt
-from lib.plot import Line, Pie
+from lib.plot import Line, LineScatter
 import pandas as pd
 import numpy as np
+import math
 
 def base_section():
     
@@ -86,7 +88,6 @@ def base_section():
             )
         
         with col2:
-            # dataframe
             st.dataframe(df)
 
         m = -np.log(sr)/T
@@ -94,6 +95,10 @@ def base_section():
         weight = []
         bio = []
         index = list(range(T+1))
+        abw = []
+        temp = []
+        do = []
+        nh4 = []
         for t in index:
             wt, biomass = single_wt(t, sr, m, alpha, alpha2, alpha3, alpha4, alpha5, alpha6, 
                 t0=t0, wn=wn, w0=w0, n0=n0, ph=[partial1, partial2, partial3], 
@@ -101,67 +106,46 @@ def base_section():
            
             weight.append(wt)
             bio.append(biomass)
+            try:
+                abw.append(float(df[df["DOC"]== t]["ABW"].values[0]))
+                temporary_temp = float(df[df["DOC"]== t]["Temp"].values[0])
+                temporary_do = float(df[df["DOC"]== t]["DO"].values[0])
+                temporary_nh4 = float(df[df["DOC"]== t]["NH4"].values[0])
 
-        option2 = Line("Weight", index, [weight], ["Weight (Gr)"]).plot()
+                if math.isnan(temporary_temp):
+                    temp.append(None)
+                else:
+                    temp.append(temporary_temp)
+
+                if math.isnan(temporary_do):
+                    do.append(None)
+                else:
+                    do.append(temporary_do)
+                
+                if math.isnan(temporary_nh4):
+                    nh4.append(None)
+                else:
+                    nh4.append(temporary_nh4)
+            except:
+                abw.append(None)
+                temp.append(None)
+                do.append(None)
+                nh4.append(None)
+    
+        option2 = LineScatter("Weight (Gr)", index, weight, index, abw, labels=["estimation", "abw"]).plot()
+
         st_echarts(options=option2)
+
+        option3 = Line("Temperature", index, y=[temp], labels=["Temperature"]).plot()
+        st_echarts(options=option3)
+
+        option4 = Line("Unionized Amonia", index, y=[nh4], labels=["NH4"]).plot()
+        st_echarts(options=option4)
+
+        option5 = Line("Dissolved Oxygen", index, y=[do], labels=["DO"]).plot()
+        st_echarts(options=option5)
+
         
 
-        # data = cost_structure(t0, T, area, wn, w0, alpha, n0, sr, [partial1, partial2, partial3], [docpartial1, docpartial2, docpartial3], e, p, o, labor, bonus, h, r, fc, formula, docfinal)
-        # index = [t for t in range(t0, T+1)]
 
-        # # option = Line("Individual weight in gr", index, [data["revenue"]["body_weight"]], ["Wt"]).plot()
-        # # st_echarts(options=option)
-
-        # partial4 = sr-partial1-partial2-partial3
-        # if partial4 >= 0:
-        #     # option1 = Line("Population", index, [data["revenue"]["population"]], ["Population"]).plot()
-        #     # st_echarts(options=option1)
-
-        #     col1, col2 = st.columns(2)
-
-        #     with col1:
-        #         option2 = Line("Biomassa", index, [data["revenue"]["biomassa"]], ["Biomassa (kg)"]).plot()
-        #         st_echarts(options=option2)
-
-        #     with col2:
-        #         option3 = Line("Revenue", index, [data["revenue"]["revenue"], data["revenue"]["potential_revenue"]], 
-        #         ["Realized Revenue", "Potential Revenue"], True).plot()
-        #         st_echarts(options=option3)
-
-        #     col11, col12 = st.columns(2)
-        #     with col11:
-        #         dataviz = [{"value": i[1], "name": data["index"][i[0]]} for i in enumerate(data["aggregate"])]
-        #         option4 = Pie("Cost Structure Diagram", dataviz, True).plot()
-        #         st_echarts(options=option4)
-        #     with col12:
-        #         # profit
-        #         option5 = Line("Profit Margin", index, [data["data_profit"]["revenue"], data["data_profit"]["cost"], data["data_profit"]["profit"]],
-        #                 ["Revenue", "Expense", "Profit"], True).plot()
-        #         st_echarts(options=option5)
-        # else:
-        #     st.warning("Your partial harvest was wrong, the sum of partials is {} not matched".format(round(partial1*n0)+round(partial2*n0)+round(partial3*n0)+round(partial4*n0)) )
-
-        # table = pd.DataFrame([
-        #     ["Total Revenue", data["matrix"]["totalRevenue"]], 
-        #     ["Total Expense", data["matrix"]["totalCost"]],
-        #     ["Profit", data["matrix"]["profit"]],
-        #     ["Margin", str(round(data["matrix"]["margin"] * 100, 2)) + "%"],
-        #     ["Yeild", str(data["matrix"]["yeild"])],
-        #     ["ADG", str(round(data["matrix"]["adg"], 2))],
-        #     ["FCR", str(data["matrix"]["fcr"])]
-        # ])
-
-        # #function to hide index and columns in table
-        # hide_table_row_index = """
-        #     <style>
-        #     thead {display:none}
-        #     tbody th {display:none}
-        #     .blank {display:none}
-        #     </style>
-        #     """
-        
-        # # Inject CSS with Markdown
-        # st.markdown(hide_table_row_index, unsafe_allow_html=True)
-
-        # st.table(table)
             
