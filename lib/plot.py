@@ -1,4 +1,4 @@
-
+import numpy as np
 
 class Line:
     def __init__(self, title: str, x: list, y: list, labels: list, legend: bool = False):
@@ -69,4 +69,40 @@ class Pie:
                 }
             ]
         }
+        return option
+
+
+class LineScatter:
+    def __init__(self, title: str, x: list, y: list, absis: list, ordinat: list, labels=["line", "scatter"]):
+        self.title = title
+        self.absis_scatter = np.array(absis)
+        self.ordinat_scatter = np.array(ordinat)
+        self.x = x
+        self.y = y
+        self.labels = labels
+
+    def plot(self):
+        series = [{
+            "name": self.labels[0],
+            "data": self.y,
+            "type": "line",
+            "symbol": "none"
+        }, {
+            "name": self.labels[1],
+            "data": np.append(self.absis_scatter.reshape(self.absis_scatter.size,1), 
+                    self.ordinat_scatter.reshape(self.ordinat_scatter.size,1), axis=1).tolist(),
+            "type": "scatter"
+        }]
+        
+        option = {
+            "title":{"text": self.title},
+            "tooltip":{"trigger": "axis"},
+            "yAxis": {"type": "value"},
+            "xAxis": {
+                "type": "category",
+                "data": self.x
+            },
+            "series": series
+        }
+
         return option
