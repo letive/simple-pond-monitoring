@@ -72,12 +72,21 @@ class ParemeterEstimation:
         self.wt_min_1 = wt
         self.biomass_min_1 = biomass
 
+    def __set_fr_params(self, csc, fa):
+        self.csc = csc
+        self.fa = fa
 
     def __set_fr(self, t,  alpha):
         biochem = ShrimpGrowth.biochem_factor(t, self.df, self.cond_temp, self.cond_uia, self.cond_do, alpha[:3], self.col_temp, self.col_uia, self.col_do, self.col_doc)
         csc = ShrimpGrowth.csc_factor(self.biomass_min_1, self.area, self.cond_csc, alpha[3])
-        fa = ShrimpGrowth.feed_availablelity_factor(self.wt_min_1, self.df.query("DOC == {}".format(t))[self.col_temp].values[0], self.fa_data, alpha[4])
+        
+        try:
+            fa = ShrimpGrowth.feed_availablelity_factor(self.wt_min_1, self.df.query("DOC == {}".format(t))[self.col_temp].values[0], self.fa_data, alpha[4])
+        except:
+            fa = 0
 
+        self.__set_fr_params(csc, fa)
+        
         if (biochem == 0) or (csc == 0):
             self.fr = 0
         else: 
@@ -86,11 +95,14 @@ class ParemeterEstimation:
 
     @functools.lru_cache(maxsize=18000)
     def single_operation(self, t0, t, m, alpha, alpha2, alpha3, alpha4, alpha5, alpha6):
+        if t == 0:
+            self.__set_pass_condtion(0, 0)
+            
         self.__set_fr(t, (alpha2, alpha3, alpha4, alpha5, alpha6))
         weight = ShrimpGrowth.weight(t0, t, self.w0, self.wn, self.fr, alpha)
         population = ShrimpGrowth.population(t, self.n0, self.sr, m, self.ph, self.doc, self.final_doc)
         biomassa = weight * population
-        self.__set_pass_condtion(weight, biomassa)      
+        self.__set_pass_condtion(weight, biomassa)    
         
         return weight, biomassa
 

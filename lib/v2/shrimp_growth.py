@@ -34,18 +34,22 @@ class ShrimpGrowth:
 
     @staticmethod
     def biochem_factor(t, df, cond_temp, cond_uia, cond_do, alpha=(1,1,1), col_temp="temperature", col_uia="unionized_amonia", col_do="dissolved_oxygen", col_doc="DOC"):
+        # print(df[df[col_doc] == t][col_temp])
         try:
+            # temperature = normal_trapezoidal(df[df[col_doc] == t][col_temp], cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
             temperature = normal_trapezoidal(df[df[col_doc] == t][col_temp].values[0], cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
         except:
             temperature = normal_trapezoidal(np.nan, cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
 
         try:
+            # unionized_amonia = left_trapezoidal(df[df[col_doc] == t][col_uia], cond_uia[0], cond_uia[3], cond_uia[2])
             unionized_amonia = left_trapezoidal(df[df[col_doc] == t][col_uia].values[0], cond_uia[0], cond_uia[3], cond_uia[2])
         except:
             unionized_amonia = left_trapezoidal(np.nan, cond_uia[0], cond_uia[3], cond_uia[2])
 
         try:
             dissolved_oxygen = normal_trapezoidal(df[df[col_doc] == t][col_do].values[0], cond_do[0], cond_do[3], cond_do[1], cond_do[2])
+            # dissolved_oxygen = normal_trapezoidal(df[df[col_doc] == t][col_do], cond_do[0], cond_do[3], cond_do[1], cond_do[2])
         except:
             dissolved_oxygen = normal_trapezoidal(np.nan, cond_do[0], cond_do[3], cond_do[1], cond_do[2])
 
@@ -63,7 +67,7 @@ class ShrimpGrowth:
         cond_csc: conditional critical steady crop. 
                    The type is tuple with (suitable min, optimal min, optimal max, suitable max)
         """
-        
+        # print(biomassa/1000, biomassa/1000/volume, volume)
         csc = left_trapezoidal((biomassa/1000)/volume, cond_csc[0], cond_csc[3], cond_csc[2])
         return alpha * csc
 
@@ -92,16 +96,18 @@ class ShrimpGrowth:
         if (temperature<1) & (temperature>30):
             index_y = None
         elif temperature > 17:
-            index_y = 9
+            index_y = 8
         else:
             try:
                 index_y = round(temperature/2) - 1
             except:
                 index_y = None
 
+        print(index_x, index_y)
+
         if (index_x != None) & (index_y != None):
             try:
-                return alpha * df.loc[index_y, index_x].values[0]
+                return alpha * df.loc[index_y, index_x]
             except ErrorIndex:
                 print("Index not found")
         else:
