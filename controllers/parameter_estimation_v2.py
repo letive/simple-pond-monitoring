@@ -47,9 +47,9 @@ def base_section():
 
     uia_condition = st.sidebar.expander("Unionized Amonia condition")
     uia_suitable_min = uia_condition.number_input("NH4 suitable min", value=0.0, step=1.,format="%.2f") 
-    uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=0.16, step=1.,format="%.2f") 
+    uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=25, step=1.,format="%.2f") 
     uia_optimal_min = uia_condition.number_input("NH4 optimal min", value=0.001, step=1.,format="%.2f") 
-    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=0.06, step=1.,format="%.2f")
+    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=18, step=1.,format="%.2f")
 
     do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
     do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
@@ -59,9 +59,9 @@ def base_section():
 
     csc_conditon = st.sidebar.expander("Critical Steady Crop Condition")
     csc_suitable_min = csc_conditon.number_input("CSC suitable min", value=0.0, step=1.,format="%.2f") 
-    csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=25.0, step=1.,format="%.2f") 
+    csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=3.0, step=1.,format="%.2f") 
     csc_optimal_min = csc_conditon.number_input("CSC optimal min", value=0.0, step=1.,format="%.2f") 
-    csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=18.0, step=1.,format="%.2f")
+    csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
 
     # e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
     # p = st.sidebar.number_input("daily probiotics", value=120000)
