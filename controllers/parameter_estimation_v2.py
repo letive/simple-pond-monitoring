@@ -31,13 +31,37 @@ def base_section():
     docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
     docfinal = int(st.sidebar.number_input("doc final", value=120))
 
-    # condition = st.sidebar.expander("Conditional Configuration")
+    
 
     st.sidebar.markdown("## Upload Data")
     df = st.sidebar.file_uploader("Growth Shrimp Data")
     with open("data/growth_full2.csv") as f:
         st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
+
+    temp_condition = st.sidebar.expander("Temperature condition")
+    temp_suitable_min = temp_condition.number_input("Temperature suitable min", value=25.0, step=1.,format="%.2f") 
+    temp_suitable_max = temp_condition.number_input("Temperature suitable max", value=33.0, step=1.,format="%.2f") 
+    temp_optimal_min = temp_condition.number_input("Temperature optimal min", value=28.0, step=1.,format="%.2f") 
+    temp_optimal_max = temp_condition.number_input("Temperature optimal max", value=32.0, step=1.,format="%.2f")
+
+    uia_condition = st.sidebar.expander("Unionized Amonia condition")
+    uia_suitable_min = uia_condition.number_input("NH4 suitable min", value=0.0, step=1.,format="%.2f") 
+    uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=0.16, step=1.,format="%.2f") 
+    uia_optimal_min = uia_condition.number_input("NH4 optimal min", value=0.001, step=1.,format="%.2f") 
+    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=0.06, step=1.,format="%.2f")
+
+    do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
+    do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
+    do_suitable_max = do_conditon.number_input("DO suitable max", value=10.0, step=1.,format="%.2f") 
+    do_optimal_min = do_conditon.number_input("DO optimal min", value=6.0, step=1.,format="%.2f") 
+    do_optimal_max = do_conditon.number_input("DO optimal max", value=9.0, step=1.,format="%.2f")
+
+    csc_conditon = st.sidebar.expander("Critical Steady Crop Condition")
+    csc_suitable_min = csc_conditon.number_input("CSC suitable min", value=0.0, step=1.,format="%.2f") 
+    csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=3.0, step=1.,format="%.2f") 
+    csc_optimal_min = csc_conditon.number_input("CSC optimal min", value=0.0, step=1.,format="%.2f") 
+    csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
 
     # e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
     # p = st.sidebar.number_input("daily probiotics", value=120000)
@@ -61,8 +85,15 @@ def base_section():
 
         # intial setup
         estimator.set_data_for_interpolation(path = "data/biochem.csv")
-        estimator.set_conditional_parameter(cond_temp=(25, 28, 32, 33), cond_uia=(0, 0.0001, 0.06, 1),
-                                        cond_do=(4, 6, 9, 10), cond_csc=(0, 0, 0.5, 3))
+        estimator.set_conditional_parameter(cond_temp=(
+                                                temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max
+                                            ), cond_uia=(
+                                                uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
+                                            ), cond_do=(
+                                                do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
+                                            ), cond_csc=(
+                                                csc_suitable_min, csc_optimal_min, csc_optimal_max, csc_suitable_max
+                                            ))
         estimator.set_food_availablelity_data()
         estimator.set_growth_paremater(w0=w0, wn=wn, n0=n0, sr=sr)
         estimator.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
