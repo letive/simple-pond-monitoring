@@ -59,9 +59,9 @@ def base_section():
 
     csc_conditon = st.sidebar.expander("Critical Steady Crop Condition")
     csc_suitable_min = csc_conditon.number_input("CSC suitable min", value=0.0, step=1.,format="%.2f") 
-    csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=3.0, step=1.,format="%.2f") 
+    csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=25.0, step=1.,format="%.2f") 
     csc_optimal_min = csc_conditon.number_input("CSC optimal min", value=0.0, step=1.,format="%.2f") 
-    csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
+    csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=18.0, step=1.,format="%.2f")
 
     # e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
     # p = st.sidebar.number_input("daily probiotics", value=120000)
