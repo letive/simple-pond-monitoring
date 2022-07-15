@@ -199,5 +199,13 @@ def base_section():
         option7 = Line("Food Availablelity", index, y=[fa], labels=["Food Availablelity"]).plot()
         st_echarts(options=option7)
 
+        st.markdown(""" 
+        
+        ### Food Availablelity Parameter Data
 
+        Data ini digunakan untuk pembanding berdasarkan weight dan temperature. Saat ini apabila data belum memenuhi kondisi temperature dan weight maka food availablelity-nya sama dengan 0.
+        """)
+        
+
+        st.write(estimator.fa_data)
             
