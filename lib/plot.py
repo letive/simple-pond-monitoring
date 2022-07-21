@@ -106,3 +106,30 @@ class LineScatter:
         }
 
         return option
+
+class Scatter:
+    def __init__(self, title: str, absis: list, ordinat: list):
+        self.title = title
+        self.absis_scatter = np.array(absis)
+        self.ordinat_scatter = np.array(ordinat)
+
+    def plot(self):
+
+        series = [{
+            "name": "scatter",
+            "symbolSize": 10,
+            "data": np.append(self.absis_scatter.reshape(self.absis_scatter.size,1), 
+                    self.ordinat_scatter.reshape(self.ordinat_scatter.size,1), axis=1).tolist(),
+            "type": "scatter"
+        }]
+
+        option = {
+            "title":{"text": self.title},
+            "tooltip":{"trigger": "axis"},
+            "xAxis": {},
+            "yAxis": {},
+            "series": series
+        }
+
+
+        return option

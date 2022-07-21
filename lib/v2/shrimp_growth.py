@@ -33,30 +33,39 @@ class ShrimpGrowth:
     #         return alpha[0]*temperature + alpha[1] * unionized_amonia + alpha[2] * dissolved_oxygen 
 
     @staticmethod
-    def biochem_factor(t, df, cond_temp, cond_uia, cond_do, alpha=(1,1,1), col_temp="temperature", col_uia="unionized_amonia", col_do="dissolved_oxygen", col_doc="DOC"):
-        # print(df[df[col_doc] == t][col_temp])
+    # def biochem_factor(t, df, cond_temp, cond_uia, cond_do, alpha=(1,1,1), col_temp="temperature", col_uia="unionized_amonia", col_do="dissolved_oxygen", col_doc="DOC"):
+    def biochem_factor(t, df, cond_temp, cond_uia, cond_do, col_temp="temperature", col_uia="unionized_amonia", col_do="dissolved_oxygen", col_doc="DOC"):
         try:
-            # temperature = normal_trapezoidal(df[df[col_doc] == t][col_temp], cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
-            temperature = normal_trapezoidal(df[df[col_doc] == t][col_temp].values[0], cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
+            # temperature = normal_trapezoidal(df[df[col_doc] == t][col_temp].values[0], cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
+            # temperature = normal_trapezoidal(df[df[col_doc] == t][col_temp].mean(), cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
+            temperature = normal_trapezoidal(df.loc[t, col_temp], cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
         except:
-            temperature = normal_trapezoidal(np.nan, cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
+            # temperature = normal_trapezoidal(np.nan, cond_temp[0], cond_temp[3], cond_temp[1], cond_temp[2]) 
+            temperature = 0
 
         try:
-            # unionized_amonia = left_trapezoidal(df[df[col_doc] == t][col_uia], cond_uia[0], cond_uia[3], cond_uia[2])
-            unionized_amonia = left_trapezoidal(df[df[col_doc] == t][col_uia].values[0], cond_uia[0], cond_uia[3], cond_uia[2])
+            # unionized_amonia = left_trapezoidal(df[df[col_doc] == t][col_uia].values[0], cond_uia[0], cond_uia[3], cond_uia[2])
+            # unionized_amonia = left_trapezoidal(df[df[col_doc] == t][col_uia].mean(), cond_uia[0], cond_uia[3], cond_uia[2])
+            unionized_amonia = left_trapezoidal(df.loc[t, col_uia], cond_uia[0], cond_uia[3], cond_uia[2])
         except:
-            unionized_amonia = left_trapezoidal(np.nan, cond_uia[0], cond_uia[3], cond_uia[2])
+            # unionized_amonia = left_trapezoidal(np.nan, cond_uia[0], cond_uia[3], cond_uia[2])
+            unionized_amonia = 0
 
         try:
-            dissolved_oxygen = normal_trapezoidal(df[df[col_doc] == t][col_do].values[0], cond_do[0], cond_do[3], cond_do[1], cond_do[2])
-            # dissolved_oxygen = normal_trapezoidal(df[df[col_doc] == t][col_do], cond_do[0], cond_do[3], cond_do[1], cond_do[2])
+            # dissolved_oxygen = normal_trapezoidal(df[df[col_doc] == t][col_do].values[0], cond_do[0], cond_do[3], cond_do[1], cond_do[2])
+            # dissolved_oxygen = normal_trapezoidal(df[df[col_doc] == t][col_do].mean(), cond_do[0], cond_do[3], cond_do[1], cond_do[2])
+            dissolved_oxygen = normal_trapezoidal(df.loc[t, col_do], cond_do[0], cond_do[3], cond_do[1], cond_do[2])
         except:
-            dissolved_oxygen = normal_trapezoidal(np.nan, cond_do[0], cond_do[3], cond_do[1], cond_do[2])
+            # dissolved_oxygen = normal_trapezoidal(np.nan, cond_do[0], cond_do[3], cond_do[1], cond_do[2])
+            dissolved_oxygen = 0
 
-        if (temperature == 0) or (unionized_amonia == 0) or (dissolved_oxygen == 0):
-            return 0
-        else:
-            return alpha[0]*temperature + alpha[1] * unionized_amonia + alpha[2] * dissolved_oxygen 
+        # if (temperature == 0) or (unionized_amonia == 0) or (dissolved_oxygen == 0):
+        #     return 0
+        # else:
+        #     return alpha[0]*temperature + alpha[1] * unionized_amonia + alpha[2] * dissolved_oxygen 
+
+        # print(temperature, unionized_amonia, dissolved_oxygen)
+        return temperature, unionized_amonia, dissolved_oxygen 
 
 
     @staticmethod
@@ -103,8 +112,6 @@ class ShrimpGrowth:
             except:
                 index_y = None
 
-        print(index_x, index_y)
-
         if (index_x != None) & (index_y != None):
             try:
                 return alpha * df.loc[index_y, index_x]
@@ -135,14 +142,16 @@ class ShrimpGrowth:
         alpha: shrimp growth rate
         constant_fr: the function of F which will be integrated
         """
-        if fr != 0:
-            wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3)) 
-                * np.exp(-alpha*(fr + quad(lambda x: constant_fr, t0, t)[0])))**3
-            return wt
-        else:
-            wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3)) 
-                * np.exp(0))**3
-            return wt
+        # wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3))* np.exp(-alpha*(fr + quad(lambda x: constant_fr, t0, t)[0])))**3
+        wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3))* np.exp(-alpha*(fr + quad(lambda x: constant_fr, t0, t)[0])))**3
+        # (wn ** (1 / 3) - (wn ** (1 / 3) - w0 ** (1 / 3)) * np.exp(-alpha * ((t - t0) + alpha2))) ** 3
+        return wt
+
+    @staticmethod
+    def weight_out_condition(t0, t, w0, wn, fr, alpha):
+        wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3)) 
+            * np.exp(-alpha*(fr)))**3
+        return wt
 
     @staticmethod
     def population(t, n0, sr, m, ph, doc, final_doc=120):

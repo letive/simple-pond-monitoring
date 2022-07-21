@@ -76,39 +76,51 @@ class ParemeterEstimation:
         self.csc = csc
         self.fa = fa
 
-    def __set_fr(self, t,  alpha):
+    def __set_fr(self, t,  alpha, m=1):
         biochem = ShrimpGrowth.biochem_factor(t, self.df, self.cond_temp, self.cond_uia, self.cond_do, alpha[:3], self.col_temp, self.col_uia, self.col_do, self.col_doc)
-        csc = ShrimpGrowth.csc_factor(self.biomass_min_1, self.area, self.cond_csc, alpha[3])
+        # countinng csc
+        wt_1 = self.df[self.df["DOC"] == t-1]["ABW"].mean()
+        # m = -np.log(self.sr)/self.df["DOC"].max()
+        population_1 = ShrimpGrowth.population(t-1, self.n0, self.sr, m, self.ph, self.doc, self.final_doc)
+        biomass_1 = wt_1 * population_1
+        # csc = ShrimpGrowth.csc_factor(self.biomass_min_1, self.area, self.cond_csc, alpha[3])
+        csc = ShrimpGrowth.csc_factor(biomass_1, self.area, self.cond_csc, alpha[3])
         
         try:
-            fa = ShrimpGrowth.feed_availablelity_factor(self.wt_min_1, self.df.query("DOC == {}".format(t))[self.col_temp].values[0], self.fa_data, alpha[4])
+            temp_1 = self.df[self.df["DOC"] == t-1][self.col_temp].mean()
+            # fa = ShrimpGrowth.feed_availablelity_factor(self.wt_min_1, self.df.query("DOC == {}".format(t))[self.col_temp].values[0], self.fa_data, alpha[4])
+            fa = ShrimpGrowth.feed_availablelity_factor(wt_1, temp_1, self.fa_data, alpha[4])
         except:
             fa = 0
 
         self.__set_fr_params(csc, fa)
         
-        if (biochem == 0) or (csc == 0):
-            self.fr = 0
-        else: 
-            self.fr = biochem + csc + fa
+        # if (biochem == 0) or (csc == 0):
+        # # if biochem == 0:
+        #     self.fr = 0
+        # else: 
+        #     self.fr = biochem + csc + fa
+        #     # self.fr = biochem
 
+        self.fr = biochem + csc + fa
 
     @functools.lru_cache(maxsize=18000)
     def single_operation(self, t0, t, m, alpha, alpha2, alpha3, alpha4, alpha5, alpha6):
         if t == 0:
             self.__set_pass_condtion(0, 0)
             
-        self.__set_fr(t, (alpha2, alpha3, alpha4, alpha5, alpha6))
+        self.__set_fr(t, (alpha2, alpha3, alpha4, alpha5, alpha6), m=m) # ini
         weight = ShrimpGrowth.weight(t0, t, self.w0, self.wn, self.fr, alpha)
         population = ShrimpGrowth.population(t, self.n0, self.sr, m, self.ph, self.doc, self.final_doc)
         biomassa = weight * population
-        self.__set_pass_condtion(weight, biomassa)    
+        self.__set_pass_condtion(weight, biomassa)    # ini
         
         return weight, biomassa
 
 
     def multiple_operation(self, T, alpha, alpha2, alpha3, alpha4, alpha5, alpha6):
-        m = -np.log(self.sr)/T[-1]
+        # m = -np.log(self.sr)/T[-1]
+        m = -np.log(self.sr)/self.df["DOC"].max()
         res = np.asarray([self.single_operation(0, t, m, alpha, alpha2, alpha3, alpha4, alpha5, alpha6)[0] for t in T])
         return res
 

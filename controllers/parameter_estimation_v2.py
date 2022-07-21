@@ -1,8 +1,8 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-from lib.v2.parameter_estimation import ParemeterEstimation
+from lib.v2.parameter_estimation_without_csc_fa import ParemeterEstimation
 
-from lib.plot import Line, LineScatter
+from lib.plot import Line, LineScatter, Scatter
 import pandas as pd
 import numpy as np
 import math
@@ -49,7 +49,7 @@ def base_section():
     uia_suitable_min = uia_condition.number_input("NH4 suitable min", value=0.0, step=1.,format="%.2f") 
     uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=25.0, step=1.,format="%.2f") 
     uia_optimal_min = uia_condition.number_input("NH4 optimal min", value=0.001, step=1.,format="%.2f") 
-    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=18.0, step=1.,format="%.2f")
+    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=15.0, step=1.,format="%.2f")
 
     do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
     do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
@@ -76,12 +76,11 @@ def base_section():
     submit = st.sidebar.button("submit")
 
     if submit:
-
         # from lib.v2.parameter_estimation import ParemeterEstimation
         try:
             estimator = ParemeterEstimation(df=df, sep=";", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
         except:
-            estimator = ParemeterEstimation(path = "data/growth_full2.csv", sep=";", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
+            estimator = ParemeterEstimation(path = "data/growth_002.csv", sep=",", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
 
         # intial setup
         estimator.set_data_for_interpolation(path = "data/biochem.csv")
@@ -99,7 +98,7 @@ def base_section():
         estimator.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
         estimator.set_pond_data(area=area)
 
-        alpha, alpha2, alpha3, alpha4, alpha5, alpha6 = estimator.fit()
+        alpha, alpha2, alpha3, alpha4 = estimator.fit_v2()
 
 
         df = estimator.df.copy()
@@ -123,12 +122,14 @@ def base_section():
             st.latex(
                 r"""\alpha_4 = {}""".format(alpha4)
             )
-            st.latex(
-                r"""\alpha_5 = {}""".format(alpha5)
-            )
-            st.latex(
-                r"""\alpha_6 ={}""".format(alpha6)
-            )
+            # st.latex(
+            #     r"""\alpha_5 = {}""".format(alpha5)
+            # )
+            # st.latex(
+            #     r"""\alpha_6 ={}""".format(alpha6)
+            # )
+
+            st.latex(r"MSE = {}".format(estimator.mse()))
         
         with col2:
             st.dataframe(df)
@@ -136,76 +137,60 @@ def base_section():
         m = -np.log(sr)/T
 
         weight = []
-        bio = []
+        # bio = []
         index = list(range(T+1))
-        abw = []
-        temp = []
-        do = []
-        nh4 = []
-        csc = []
-        fa = []
+        # abw = []
+        # temp = []
+        # do = []
+        # nh4 = []
+        # csc = []
+        # fa = []
 
-        for t in index:
+        data = estimator.df.copy()
+        data1 = estimator.df.copy()
+        data1 = data1.loc[0:102]
 
-            wt, biomass = estimator.single_operation(0, t, m, alpha, alpha2, alpha3, alpha4, alpha5, alpha6)
-           
-            csc.append(estimator.csc/alpha5)
-            fa.append(estimator.fa)
+        # modeling
+        model = ParemeterEstimation(df=data1, col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
+        
+        model.set_data_for_interpolation(path = "data/biochem.csv")
+        model.set_conditional_parameter(cond_temp=(
+                                                temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max
+                                            ), cond_uia=(
+                                                uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
+                                            ), cond_do=(
+                                                do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
+                                            ), cond_csc=(
+                                                csc_suitable_min, csc_optimal_min, csc_optimal_max, csc_suitable_max
+                                            ))
+        model.set_food_availablelity_data()
+        model.set_growth_paremater(w0=w0, wn=wn, n0=n0, sr=sr)
+        model.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
+        model.set_pond_data(area=area)
 
+        for idx, row in data1.iterrows():
+            wt, _ = model.single_operation_v2(0, row["DOC"], alpha, alpha2, alpha3, alpha4)
             weight.append(wt)
-            bio.append(biomass)
-            try:
-                abw.append(float(df[df["DOC"]== t]["ABW"].values[0]))
-                temporary_temp = float(df[df["DOC"]== t]["Temp"].values[0])
-                temporary_do = float(df[df["DOC"]== t]["DO"].values[0])
-                temporary_nh4 = float(df[df["DOC"]== t]["NH4"].values[0])
 
-                if math.isnan(temporary_temp):
-                    temp.append(None)
-                else:
-                    temp.append(temporary_temp)
+            # temp.append(estimator.temperature[0])
+            # do.append(estimator.do[0])
+            # nh4.append(estimator.nh4[0])
 
-                if math.isnan(temporary_do):
-                    do.append(None)
-                else:
-                    do.append(temporary_do)
-                
-                if math.isnan(temporary_nh4):
-                    nh4.append(None)
-                else:
-                    nh4.append(temporary_nh4)
-            except:
-                abw.append(None)
-                temp.append(None)
-                do.append(None)
-                nh4.append(None)
+        
     
-        option2 = LineScatter("Weight (Gr)", index, weight, index, abw, labels=["estimation", "abw"]).plot()
-
+        option2 = LineScatter("Weight (Gr)", data1["DOC"].tolist(), weight, df["DOC"].tolist(), df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
         st_echarts(options=option2)
 
-        option3 = Line("Temperature", index, y=[temp], labels=["Temperature"]).plot()
+
+        data.replace(np.nan, None, inplace=True)
+
+        option3 = Scatter("Temperature",  data["DOC"].tolist(), data["Temp"].tolist()).plot()
         st_echarts(options=option3)
 
-        option4 = Line("Unionized Amonia", index, y=[nh4], labels=["NH4"]).plot()
+        option4 = Scatter("DO",  data["DOC"].tolist(), data["DO"].tolist()).plot()
         st_echarts(options=option4)
 
-        option5 = Line("Dissolved Oxygen", index, y=[do], labels=["DO"]).plot()
+        option5 = Scatter("NH4", data["DOC"].tolist(), data["NH4"].tolist()).plot()
         st_echarts(options=option5)
 
-        option6 = Line("Critical Steady Crop", index, y=[csc], labels=["CSC"]).plot()
-        st_echarts(options=option6)
-
-        option7 = Line("Food Availablelity", index, y=[fa], labels=["Food Availablelity"]).plot()
-        st_echarts(options=option7)
-
-        st.markdown(""" 
-        
-        ### Food Availablelity Parameter Data
-
-        Data ini digunakan untuk pembanding berdasarkan weight dan temperature. Saat ini apabila data belum memenuhi kondisi temperature dan weight maka food availablelity-nya sama dengan 0.
-        """)
-        
-
-        st.write(estimator.fa_data)
             
