@@ -77,7 +77,7 @@ def base_section():
     if sensitivity_item  == "Temperature":
         temperature_sensitivity = sensitivity.slider("Pond Temperature", 0, 40, (27, 32))
     elif sensitivity_item == "DO":
-        do_sensitivity = sensitivity.slider("DO", 0, 15, (6, 9))    
+        do_sensitivity = sensitivity.slider("DO", 0, 30, (6, 9))    
     else:
         nh4_sensitivity = sensitivity.slider("NH4", 0, 30, (1, 15))    
 
