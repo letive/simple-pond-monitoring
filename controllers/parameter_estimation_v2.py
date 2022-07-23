@@ -78,7 +78,7 @@ def base_section():
     if submit:
         # from lib.v2.parameter_estimation import ParemeterEstimation
         try:
-            estimator = ParemeterEstimation(df=df, sep=";", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
+            estimator = ParemeterEstimation(df=df, sep=",", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
         except:
             estimator = ParemeterEstimation(path = "data/growth_002.csv", sep=",", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
 
