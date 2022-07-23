@@ -179,6 +179,11 @@ def base_section():
         
     
         option2 = LineScatter("Weight (Gr)", data1["DOC"].tolist(), weight, df["DOC"].tolist(), df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
+        option2["dataZoom"] = [{
+            # "type":"inside",
+            "start": 0, 
+            "end": 30
+        }]
         st_echarts(options=option2)
 
 
