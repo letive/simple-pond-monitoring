@@ -2,10 +2,8 @@ import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_without_csc_fa import ParemeterEstimation
 
-from lib.plot import Line, LineScatter, Scatter
-import pandas as pd
+from lib.plot import LineScatter, Scatter
 import numpy as np
-import math
 
 def base_section():
     
@@ -14,8 +12,7 @@ def base_section():
     t0 = st.sidebar.number_input("t0", value=0)
     sr = st.sidebar.number_input("survival rate", value=0.92)
     n0 = st.sidebar.number_input("n0", value=100)
-    T = st.sidebar.number_input("T", value=120)
-        
+    T = st.sidebar.number_input("T", value=120)    
     area = st.sidebar.number_input("area", value=1000)
     # alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1.0, step=1.,format="%.2f")/100 
 
@@ -31,14 +28,13 @@ def base_section():
     docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
     docfinal = int(st.sidebar.number_input("doc final", value=120))
 
-    
-
     st.sidebar.markdown("## Upload Data")
     df = st.sidebar.file_uploader("Growth Shrimp Data")
+    separator = st.sidebar.text_input("seperator data in the csv table", value=";")
     with open("data/growth_full2.csv") as f:
         st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
-
+    st.sidebar.markdown("## Criterion")
     temp_condition = st.sidebar.expander("Temperature condition")
     temp_suitable_min = temp_condition.number_input("Temperature suitable min", value=25.0, step=1.,format="%.2f") 
     temp_suitable_max = temp_condition.number_input("Temperature suitable max", value=33.0, step=1.,format="%.2f") 
@@ -76,13 +72,12 @@ def base_section():
     submit = st.sidebar.button("submit")
 
     if submit:
-        # from lib.v2.parameter_estimation import ParemeterEstimation
         try:
-            estimator = ParemeterEstimation(df=df, sep=";", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
+            estimator = ParemeterEstimation(df=df, sep=separator, col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
         except:
             estimator = ParemeterEstimation(path = "data/growth_002.csv", sep=",", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
 
-        # intial setup
+        # initial setup
         estimator.set_data_for_interpolation(path = "data/biochem.csv")
         estimator.set_conditional_parameter(cond_temp=(
                                                 temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max
@@ -97,39 +92,24 @@ def base_section():
         estimator.set_growth_paremater(w0=w0, wn=wn, n0=n0, sr=sr)
         estimator.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
         estimator.set_pond_data(area=area)
-
         alpha, alpha2, alpha3, alpha4 = estimator.fit_v2()
-
 
         df = estimator.df.copy()
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown("## Parameter")
-            st.latex(
-                r"""
-                \alpha = {}
-                """.format(alpha)
-            )
-
-            st.latex(
-                r"""\alpha_2 = {}""".format(alpha2)
-            )
-
-            st.latex(
-                r"""\alpha_3 = {}""".format(alpha3)
-            )
-            st.latex(
-                r"""\alpha_4 = {}""".format(alpha4)
-            )
+            st.markdown(r"$\alpha = {}$".format(alpha))
+            st.markdown(r"$\alpha_2 = {}$".format(alpha2))
+            st.markdown(r"$\alpha_3 = {}$".format(alpha3))
+            st.markdown(r"$\alpha_4 = {}$".format(alpha4))
+            st.markdown(r"MSE = {}".format(estimator.mse()))
             # st.latex(
             #     r"""\alpha_5 = {}""".format(alpha5)
             # )
             # st.latex(
             #     r"""\alpha_6 ={}""".format(alpha6)
             # )
-
-            st.latex(r"MSE = {}".format(estimator.mse()))
         
         with col2:
             st.dataframe(df)

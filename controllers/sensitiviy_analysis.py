@@ -33,10 +33,11 @@ def base_section():
 
     st.sidebar.markdown("## Upload Data")
     df = st.sidebar.file_uploader("Growth Shrimp Data")
+    separator = st.sidebar.text_input("seperator data in the csv table", value=";")
     with open("data/growth_full2.csv") as f:
         st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
-
+    st.sidebar.markdown("## Criterion")
     temp_condition = st.sidebar.expander("Temperature condition")
     temp_suitable_min = temp_condition.number_input("Temperature suitable min", value=25.0, step=1.,format="%.2f") 
     temp_suitable_max = temp_condition.number_input("Temperature suitable max", value=33.0, step=1.,format="%.2f") 
@@ -61,16 +62,6 @@ def base_section():
     csc_optimal_min = csc_conditon.number_input("CSC optimal min", value=0.0, step=1.,format="%.2f") 
     csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
 
-    # e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
-    # p = st.sidebar.number_input("daily probiotics", value=120000)
-    # o = st.sidebar.number_input("others cost", value=30000)
-    # labor = st.sidebar.number_input("labor cost", value=2000000)/30
-    # bonus = st.sidebar.number_input("bonus", value=2000)
-    # h = st.sidebar.number_input("harvest cost per kg", value=1000)
-    # r = st.sidebar.number_input("feeding rate", value=0.04)
-    # fc = st.sidebar.number_input("feeding price", value=16000)
-    # formula = st.sidebar.selectbox("formula", (1, 2))
-
     sensitivity = st.sidebar.expander("Sensitivity")
     sensitivity_item = sensitivity.radio("Select the item to be analyze", ["Temperature", "DO", "NH4"])
 
@@ -86,7 +77,7 @@ def base_section():
     if submit:
         
         try:
-            estimator = ParemeterEstimation(df=df, sep=";", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
+            estimator = ParemeterEstimation(df=df, sep=separator, col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
         except:
             estimator = ParemeterEstimation(path = "data/growth_002.csv", sep=",", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
 
