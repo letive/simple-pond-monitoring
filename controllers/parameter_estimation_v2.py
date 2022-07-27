@@ -4,6 +4,7 @@ from lib.v2.parameter_estimation_without_csc_fa import ParemeterEstimation
 
 from lib.plot import LineScatter, Scatter
 import numpy as np
+import pandas as pd
 
 def base_section():
     
@@ -73,6 +74,7 @@ def base_section():
 
     if submit:
         try:
+            df = pd.read_csv(df, sep=separator)
             estimator = ParemeterEstimation(df=df, sep=separator, col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
         except:
             estimator = ParemeterEstimation(path = "data/growth_002.csv", sep=",", col_temp="Temp", col_uia="NH4", col_do="DO", col_doc="DOC")
