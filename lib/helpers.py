@@ -168,3 +168,34 @@ def price_function(path, sep=";", col_size="size_count", col_price="price"):
 def feed_formula3(path, sep=";", colname="Formula 3"):
     df = pd.read_csv(path, sep=sep)
     return df[colname].tolist()
+
+
+def get_cycle_data(index, t, df):
+    # index and t must be at the same row
+    if t < index:
+        start_index = index - t + 1
+    else:
+        start_index = index - t + 1
+    
+    data = df.loc[start_index:index]
+    if data.shape[0] == 1:
+        data = df.loc[start_index:index+1]
+
+    return data
+
+def generate_interpolate_function(df, col_doc, col_function):
+    f = CubicSpline(df[col_doc].values, df[col_function].values)
+    return f
+
+def generate_spline_function(df, col_doc, condition, col_function="Temp", biochem_type="temperature"):
+    # col_function example is temperature
+    # condition (suitable_min, optimal_min, optimal_max, suitable_max)
+    if biochem_type == "temperature":
+        data = [normal_trapezoidal(x, condition[0], condition[3], condition[1], condition[2]) for x in df[col_function].values]
+    elif biochem_type == "nh4":
+        data = [left_trapezoidal(x, condition[0], condition[3], condition[2]) for x in df[col_function].values]
+    else:
+        data = [normal_trapezoidal(x, condition[0], condition[3], condition[1], condition[2]) for x in df[col_function].values]
+
+    f = CubicSpline(df[col_doc].values, data)
+    return f
