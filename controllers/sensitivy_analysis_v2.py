@@ -144,7 +144,7 @@ def base_section():
 
                 weight = []
                 for idx, row in data1.iterrows():
-                    wt, _ = model.single_operation(0, row["DOC"], alpha, alpha2, alpha3)
+                    wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha, alpha2, alpha3)
                     weight.append(wt)
 
                 data_plot.append(weight)
@@ -176,7 +176,7 @@ def base_section():
 
                 weight = []
                 for idx, row in data1.iterrows():
-                    wt, _ = model.single_operation_v2(0, row["DOC"], alpha, alpha2, alpha3, alpha4)
+                    wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha, alpha2, alpha3)
                     weight.append(wt)
 
                 data_plot.append(weight)
@@ -207,7 +207,7 @@ def base_section():
 
                 weight = []
                 for idx, row in data1.iterrows():
-                    wt, _ = model.single_operation_v2(0, row["DOC"], alpha, alpha2, alpha3, alpha4)
+                    wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha, alpha2, alpha3)
                     weight.append(wt)
 
                 data_plot.append(weight)

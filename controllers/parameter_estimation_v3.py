@@ -152,7 +152,7 @@ def base_section():
         model.set_pond_data(area=area)
 
         for idx, row in data1.iterrows():
-            wt, _ = model.single_operation(0, row["DOC"], alpha, alpha2, alpha3)
+            wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha, alpha2, alpha3)
             weight.append(wt)
 
             # temp.append(estimator.temperature[0])
