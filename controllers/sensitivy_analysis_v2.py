@@ -46,9 +46,9 @@ def base_section():
 
     uia_condition = st.sidebar.expander("Unionized Amonia condition")
     uia_suitable_min = uia_condition.number_input("NH4 suitable min", value=0.0, step=1.,format="%.2f") 
-    uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=25.0, step=1.,format="%.2f") 
-    uia_optimal_min = uia_condition.number_input("NH4 optimal min", value=0.001, step=1.,format="%.2f") 
-    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=15.0, step=1.,format="%.2f")
+    uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=0.02, step=1.,format="%.2f") 
+    uia_optimal_min = uia_condition.number_input("NH4 optimal min", value=0.0, step=1.,format="%.2f") 
+    uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=0.01, step=1.,format="%.2f")
 
     do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
     do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
