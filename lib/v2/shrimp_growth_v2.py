@@ -120,9 +120,9 @@ class ShrimpGrowth:
         fr: list/tuple of function
         condition: list of list condition
         """
-        integrale1 = alpha[0]*quad(fr[0], t0, t)[0]
-        integrale2 = alpha[1]*quad(fr[1], t0, t)[0]
-        integrale3 = alpha[2]*quad(fr[2], t0, t)[0]
+        integrale1 = alpha[0]*quad(fr[0], t0, t, limit=200)[0]
+        integrale2 = alpha[1]*quad(fr[1], t0, t, limit=200)[0]
+        integrale3 = alpha[2]*quad(fr[2], t0, t, limit=200)[0]
 
         # integrale1 = alpha[0]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[0], condition[0], "temperature"))[0]
         # integrale2 = alpha[1]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[1], condition[1], "nh4"))[0]

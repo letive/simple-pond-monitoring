@@ -175,7 +175,7 @@ def get_cycle_data(index, t, df):
     if t < index:
         start_index = index - t + 1
     else:
-        start_index = index - t
+        start_index = index - index
     
     data = df.loc[start_index:index]
     if data.shape[0] == 1:
