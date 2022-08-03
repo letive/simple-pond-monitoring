@@ -110,7 +110,7 @@ class ShrimpGrowth:
 
 
     @staticmethod
-    def weight(t0, t, w0, wn, fr, alpha):
+    def weight(t0, t, w0, wn, fr, alpha, condition):
         """
         t: time at t
         t0: initial time
@@ -120,16 +120,25 @@ class ShrimpGrowth:
         fr: list/tuple of function
         condition: list of list condition
         """
-        integrale1 = alpha[0]*quad(fr[0], t0, t, limit=200)[0]
-        integrale2 = alpha[1]*quad(fr[1], t0, t, limit=200)[0]
-        integrale3 = alpha[2]*quad(fr[2], t0, t, limit=200)[0]
+        # integrale1 = alpha[0]*quad(fr[0], t0, t, limit=200)[0]
+        # integrale2 = alpha[1]*quad(fr[1], t0, t, limit=200)[0]
+        # integrale3 = alpha[2]*quad(fr[2], t0, t, limit=200)[0]
 
-        # integrale1 = alpha[0]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[0], condition[0], "temperature"))[0]
-        # integrale2 = alpha[1]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[1], condition[1], "nh4"))[0]
-        # integrale3 = alpha[2]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[2], condition[2], "do"))[0]
+        # # integrale1 = alpha[0]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[0], condition[0], "temperature"))[0]
+        # # integrale2 = alpha[1]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[1], condition[1], "nh4"))[0]
+        # # integrale3 = alpha[2]*quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[2], condition[2], "do"))[0]
 
-        # f = quad(ShrimpGrowth.integrate_function_v2, t0, t, args=(fr, condition, alpha))[0]
-        wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3))* np.exp(-1 * (integrale1 + integrale2 + integrale3)))**3
+        # # f = quad(ShrimpGrowth.integrate_function_v2, t0, t, args=(fr, condition, alpha))[0]
+        # wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3))* np.exp(-1 * (integrale1 + integrale2 + integrale3)))**3
+
+        integrale1 = quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[0], condition[0], "temperature"))[0]
+        integrale2 = quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[1], condition[1], "nh4"))[0]
+        integrale3 = quad(ShrimpGrowth.integrate_function, t0, t, args=(fr[2], condition[2], "do"))[0]
+
+        # f = quad(ShrimpGrowth.integrate_function_v2, t0, t, args=(fr, condition, alpha), limit=200)[0]
+
+        # wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3))* np.exp(-alpha[3] * (alpha[0]*integrale1 + alpha[1]*integrale2 + alpha[2]*integrale3)))**3
+        wt = (wn**(1/3) - (wn**(1/3) - w0**(1/3))* np.exp(-alpha * (abs(integrale1) + abs(integrale2) + abs(integrale3))))**3
         return wt
 
 
