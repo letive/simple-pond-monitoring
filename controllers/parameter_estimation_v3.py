@@ -96,8 +96,8 @@ def base_section():
         estimator.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
         estimator.set_pond_data(area=area)
         estimator.set_interpolate_biochem()
-        # alpha, alpha2, alpha3 = estimator.fit()
-        alpha = estimator.fit()
+        alpha, alpha2, alpha3, alpha4 = estimator.fit()
+        # alpha = estimator.fit()
 
         df = estimator.df.copy()
         col1, col2 = st.columns(2)
@@ -105,9 +105,9 @@ def base_section():
         with col1:
             st.markdown("## Parameter")
             st.markdown(r"$\alpha = {}$".format(alpha))
-            # st.markdown(r"$\alpha_2 = {}$".format(alpha2))
-            # st.markdown(r"$\alpha_3 = {}$".format(alpha3))
-            # st.markdown(r"$\alpha_4 = {}$".format(alpha4))
+            st.markdown(r"$\alpha_2 = {}$".format(alpha2))
+            st.markdown(r"$\alpha_3 = {}$".format(alpha3))
+            st.markdown(r"$\alpha_4 = {}$".format(alpha4))
             st.markdown(r"MSE = {}".format(estimator.mse()))
             # st.latex(
             #     r"""\alpha_5 = {}""".format(alpha5)
@@ -155,8 +155,8 @@ def base_section():
         model.set_interpolate_biochem()
 
         for idx, row in data1.iterrows():
-            # wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha, alpha2, alpha3)
-            wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha[0])
+            wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha, alpha2, alpha3, alpha4)
+            # wt, _ = model.single_operation(0, tuple([idx, row["DOC"]]), alpha[0])
             weight.append(wt)
 
             # temp.append(estimator.temperature[0])

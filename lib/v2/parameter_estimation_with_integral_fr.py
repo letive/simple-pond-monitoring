@@ -116,37 +116,37 @@ class ParemeterEstimation:
 
 
     @functools.lru_cache(maxsize=18000)
-    def single_operation(self, t0, data, alpha):
-        if data[1] < data[0]:
-            selected_cycle = get_cycle_data(data[0], data[1], self.df)
-            f_temp = generate_interpolate_function(selected_cycle, self.col_doc, self.col_temp)
-            f_nh4 = generate_interpolate_function(selected_cycle, self.col_doc, self.col_uia)
-            f_do = generate_interpolate_function(selected_cycle, self.col_doc, self.col_do)
-        else:
-            f_temp = self.f_temp
-            f_nh4 = self.f_nh4
-            f_do = self.f_do
+    # def single_operation(self, t0, data, alpha):
+    #     if data[1] < data[0]:
+    #         selected_cycle = get_cycle_data(data[0], data[1], self.df)
+    #         f_temp = generate_interpolate_function(selected_cycle, self.col_doc, self.col_temp)
+    #         f_nh4 = generate_interpolate_function(selected_cycle, self.col_doc, self.col_uia)
+    #         f_do = generate_interpolate_function(selected_cycle, self.col_doc, self.col_do)
+    #     else:
+    #         f_temp = self.f_temp
+    #         f_nh4 = self.f_nh4
+    #         f_do = self.f_do
 
-        cond = (self.cond_temp, self.cond_uia, self.cond_do)
-        weight = ShrimpGrowth.weight(t0, data[1]-1, self.w0, self.wn, (f_temp, f_nh4, f_do), alpha, cond)   
-        return weight, 0
-    # def single_operation(self, t0, data, alpha1, alpha2, alpha3):
-    #     selected_cycle = get_cycle_data(data[0], data[1], self.df)
-    #     f_temp = generate_spline_function(selected_cycle, self.col_doc, self.cond_temp, self.col_temp, biochem_type="temperature")
-    #     f_nh4 = generate_spline_function(selected_cycle, self.col_doc, self.cond_uia, self.col_uia, biochem_type="nh4")
-    #     f_do = generate_spline_function(selected_cycle, self.col_doc, self.cond_do, self.col_do, biochem_type="do")
-        
-    #     weight = ShrimpGrowth.weight(t0, data[1], self.w0, self.wn, (f_temp, f_nh4, f_do), (alpha1, alpha2, alpha3))    
+    #     cond = (self.cond_temp, self.cond_uia, self.cond_do)
+    #     weight = ShrimpGrowth.weight(t0, data[1]-1, self.w0, self.wn, (f_temp, f_nh4, f_do), alpha, cond)   
     #     return weight, 0
+    def single_operation(self, t0, data, alpha, alpha1, alpha2, alpha3):
+        selected_cycle = get_cycle_data(data[0], data[1], self.df)
+        f_temp = generate_spline_function(selected_cycle, self.col_doc, self.cond_temp, self.col_temp, biochem_type="temperature")
+        f_nh4 = generate_spline_function(selected_cycle, self.col_doc, self.cond_uia, self.col_uia, biochem_type="nh4")
+        f_do = generate_spline_function(selected_cycle, self.col_doc, self.cond_do, self.col_do, biochem_type="do")
+        
+        weight = ShrimpGrowth.weight(t0, data[1], self.w0, self.wn, (f_temp, f_nh4, f_do), (alpha, alpha1, alpha2, alpha3))    
+        return weight, 0
 
-    # def multiple_operation(self, data, alpha, alpha2, alpha3):
-    #     _, m = data.shape
-    #     res = np.asarray([self.single_operation(0, tuple(data[:, t]), alpha, alpha2, alpha3)[0] for t in range(m)])
-    #     return res
-    def multiple_operation(self, data, alpha):
+    def multiple_operation(self, data, alpha, alpha1, alpha2, alpha3):
         _, m = data.shape
-        res = np.asarray([self.single_operation(0, tuple(data[:, t]), alpha)[0] for t in range(m)])
+        res = np.asarray([self.single_operation(0, tuple(data[:, t]), alpha, alpha1, alpha2, alpha3)[0] for t in range(m)])
         return res
+    # def multiple_operation(self, data, alpha):
+    #     _, m = data.shape
+    #     res = np.asarray([self.single_operation(0, tuple(data[:, t]), alpha)[0] for t in range(m)])
+    #     return res
     
     def fit(self):
         data = np.asarray([self.df.index.tolist(), self.df[self.col_doc].tolist()])
@@ -155,11 +155,11 @@ class ParemeterEstimation:
         return alpha
 
     def mse(self):
-        # alpha, alpha1, alpha2, alpha3 = self.alpha
+        alpha, alpha1, alpha2, alpha3 = self.alpha
         data = []
         for i in self.df.iterrows():
-            # data.append((i[1][self.col_abw] - self.single_operation(0, tuple([i[0], i[1][self.col_doc]]), alpha, alpha1, alpha2, alpha3))**2)
-            data.append((i[1][self.col_abw] - self.single_operation(0, tuple([i[0], i[1][self.col_doc]]), self.alpha[0]))**2)
+            data.append((i[1][self.col_abw] - self.single_operation(0, tuple([i[0], i[1][self.col_doc]]), alpha, alpha1, alpha2, alpha3))**2)
+            # data.append((i[1][self.col_abw] - self.single_operation(0, tuple([i[0], i[1][self.col_doc]]), self.alpha[0]))**2)
     
         return np.mean(data)
 
