@@ -199,3 +199,26 @@ def generate_spline_function(df, col_doc, condition, col_function="Temp", bioche
 
     f = CubicSpline(df[col_doc].values, data)
     return f
+
+def integrate_function(t, function, condition, kind):
+    """
+    t: the time value
+    function: interpolation function
+    condition: list of condition
+    type: type of function. ex: temperature
+    """
+    if (kind == "temperature") or (kind == "do"):
+        return normal_trapezoidal(function(t), condition[0], condition[3], condition[1], condition[2])
+    elif kind == "nh4":
+        return left_trapezoidal(function(t), condition[0], condition[3], condition[2])
+
+def get_cycle_range(df, col_doc="DOC"):
+    list_index = df[df[col_doc] == 1].index
+    cycles = []
+    for index, value in enumerate(list_index):
+        if value != list_index[-1]:
+            cycles.append([value, list_index[index+1]])
+        else:
+            cycles.append([value])
+
+    return cycles
