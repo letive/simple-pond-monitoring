@@ -1,6 +1,6 @@
 import numpy as np
 from lib.uem.integrate_fr import Fungsi
-from lib.helpers import heaviside_step
+from lib.helpers_mod import heaviside_step
 
 
 class Biomassa:

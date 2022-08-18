@@ -1,5 +1,5 @@
 import numpy as np
-from lib.helpers import heaviside_step
+from lib.helpers_mod import heaviside_step
 from scipy.optimize import curve_fit
 
 
@@ -92,7 +92,7 @@ class Biomassa:
         return self.n0 * self.wt()
 
 
-from lib.helpers import source_data, score_csc_compute
+from lib.helpers_mod import source_data, score_csc_compute
 from lib.uem.feeding_rate import feeding_rate
 
 f_uia, f_o2, f_temp, temperature = source_data(

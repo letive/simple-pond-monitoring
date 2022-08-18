@@ -1,4 +1,4 @@
-from lib.helpers import source_data, score_csc_compute
+from lib.helpers_mod import source_data, score_csc_compute
 from lib.uem.feeding_rate import feeding_rate
 
 from lib.parameter_estimation import Biomassa

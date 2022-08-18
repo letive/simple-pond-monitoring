@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.integrate import quad
-from lib.helpers import normal_trapezoidal, left_trapezoidal, heaviside_step
+from lib.helpers_mod import normal_trapezoidal, left_trapezoidal, heaviside_step
 from lib.v2.error import ErrorIndex
 
 class ShrimpGrowth:

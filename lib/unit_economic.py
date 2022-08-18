@@ -1,6 +1,6 @@
 from lib.uem.metrices import Compute
 from lib.uem.biomass import Biomassa
-from lib.helpers import price_function, source_data, score_csc_compute
+from lib.helpers_mod import price_function, source_data, score_csc_compute
 from lib.uem.feeding_rate import feeding_rate
 from lib.uem.cost_construction import ConstantCost
 import numpy as np

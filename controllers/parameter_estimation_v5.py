@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-from lib.v2.parameter_estimation_v3 import ParemeterEstimation
-from lib.helpers_mod import get_cycle_range
+from lib.v2.paremater_estimation_v5 import ParemeterEstimation
+from lib.helpers_mod.helpers import get_cycle_range
 from lib.plot import LineScatter, Scatter
 import numpy as np
 import pandas as pd
@@ -38,8 +38,8 @@ def base_section():
     """)
 
     df = st.sidebar.file_uploader("Growth Shrimp Data")
-    separator = st.sidebar.text_input("seperator data in the csv table", value=";")
-    with open("data/data_test_01.csv") as f:
+    separator = st.sidebar.text_input("seperator data in the csv table", value=",")
+    with open("data/data_prep/data_test_04.csv") as f:
         st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
     st.sidebar.markdown("## Criterion")
@@ -56,16 +56,10 @@ def base_section():
     uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=0.01, step=1.,format="%.2f")
 
     do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
-    do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
+    do_suitable_min = do_conditon.number_input("DO suitable min", value=2.0, step=1.,format="%.2f") 
     do_suitable_max = do_conditon.number_input("DO suitable max", value=10.0, step=1.,format="%.2f") 
-    do_optimal_min = do_conditon.number_input("DO optimal min", value=6.0, step=1.,format="%.2f") 
+    do_optimal_min = do_conditon.number_input("DO optimal min", value=4.5, step=1.,format="%.2f") 
     do_optimal_max = do_conditon.number_input("DO optimal max", value=9.0, step=1.,format="%.2f")
-
-    # csc_conditon = st.sidebar.expander("Critical Steady Crop Condition")
-    # csc_suitable_min = csc_conditon.number_input("CSC suitable min", value=0.0, step=1.,format="%.2f") 
-    # csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=3.0, step=1.,format="%.2f") 
-    # csc_optimal_min = csc_conditon.number_input("CSC optimal min", value=0.0, step=1.,format="%.2f") 
-    # csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
 
     csc_suitable_min, csc_optimal_min, csc_optimal_max, csc_suitable_max = 0, 0, 0, 0
     
@@ -77,6 +71,7 @@ def base_section():
             root_df = pd.read_csv(df, sep=separator)
         except:
             root_df = pd.read_csv("data/data_test_01.csv")
+
         cycle = get_cycle_range(root_df)
         alpha1 = []
         alpha2 = []
@@ -136,7 +131,14 @@ def base_section():
 
         st.write(report)
 
-        
+        # cycle_option = ["cycle_{}".format(i+1) for i in range(len(cycle))]
+        # cycle_selected = st.selectbox("select cycle", options=cycle_option)
+
+        # j = int(cycle_selected.split("_")[1]) - 1
+
+        # i = cycle[j]
+
+
         for j, i in enumerate(cycle):
             if len(i) == 2:
                 ndf = root_df.loc[i[0]:i[1]-1]
@@ -168,10 +170,10 @@ def base_section():
         
     
             option2 = LineScatter("Weight (Gr)", ndf["DOC"].tolist(), weight, ndf["DOC"].tolist(), ndf["ABW"].tolist(), labels=["estimation", "abw"]).plot()
-            option2["dataZoom"] = [{
-                "start": 0, 
-                "end": 30
-            }]
+            # option2["dataZoom"] = [{
+            #     "start": 0, 
+            #     "end": 30
+            # }]
             st_echarts(options=option2)
 
             ndf.replace(np.nan, None, inplace=True)

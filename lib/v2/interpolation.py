@@ -1,6 +1,6 @@
 from scipy.interpolate import CubicSpline
 import pandas as pd
-from lib.helpers import normal_trapezoidal, left_trapezoidal
+from lib.helpers_mod import normal_trapezoidal, left_trapezoidal
 
 class Interpolate:
 

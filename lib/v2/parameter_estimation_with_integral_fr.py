@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.interpolate import CubicSpline
-from lib.helpers import get_cycle_data, generate_spline_function, generate_interpolate_function
+from lib.helpers_mod import get_cycle_data, generate_spline_function, generate_interpolate_function
 
 class ParemeterEstimation:
     
