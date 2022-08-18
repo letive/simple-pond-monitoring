@@ -39,7 +39,7 @@ def base_section():
 
     df = st.sidebar.file_uploader("Growth Shrimp Data")
     separator = st.sidebar.text_input("seperator data in the csv table", value=",")
-    with open("data/data_prep/data_test_04.csv") as f:
+    with open("data/data_test_01.csv") as f:
         st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
     st.sidebar.markdown("## Criterion")
