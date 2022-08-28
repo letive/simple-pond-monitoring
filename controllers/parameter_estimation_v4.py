@@ -1,7 +1,8 @@
+from weakref import CallableProxyType
 import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_v3 import ParemeterEstimation
-from lib.helpers_mod import get_cycle_range
+from lib.helpers_mod.helpers import get_cycle_range
 from lib.plot import LineScatter, Scatter
 import numpy as np
 import pandas as pd
@@ -12,23 +13,23 @@ def base_section():
     st.set_page_config(layout="wide")
     
     t0 = st.sidebar.number_input("t0", value=0)
-    sr = st.sidebar.number_input("survival rate", value=0.92)
-    n0 = st.sidebar.number_input("n0", value=100)
+    # sr = st.sidebar.number_input("survival rate", value=0.92)
+    # n0 = st.sidebar.number_input("n0", value=100)
     T = st.sidebar.number_input("T", value=120)    
-    area = st.sidebar.number_input("area", value=1000)
+    # area = st.sidebar.number_input("area", value=1000)
     # alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1.0, step=1.,format="%.2f")/100 
 
     w0 = st.sidebar.number_input("w0", value=0.05)
     wn = st.sidebar.number_input("wn", value=45)
 
-    partial1 = st.sidebar.number_input("partial1", value=0.1)
-    partial2 = st.sidebar.number_input("partial2", value=0.1)
-    partial3 = st.sidebar.number_input("partial3", value=0.1)
+    # partial1 = st.sidebar.number_input("partial1", value=0.1)
+    # partial2 = st.sidebar.number_input("partial2", value=0.1)
+    # partial3 = st.sidebar.number_input("partial3", value=0.1)
     
-    docpartial1 = int(st.sidebar.number_input("doc partial 1", value=60))
-    docpartial2 = int(st.sidebar.number_input("doc partial 2", value=70))
-    docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
-    docfinal = int(st.sidebar.number_input("doc final", value=120))
+    # docpartial1 = int(st.sidebar.number_input("doc partial 1", value=60))
+    # docpartial2 = int(st.sidebar.number_input("doc partial 2", value=70))
+    # docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
+    # docfinal = int(st.sidebar.number_input("doc final", value=120))
 
     st.sidebar.markdown(""" 
         ## Upload Data 
@@ -38,8 +39,8 @@ def base_section():
     """)
 
     df = st.sidebar.file_uploader("Growth Shrimp Data")
-    separator = st.sidebar.text_input("seperator data in the csv table", value=";")
-    with open("data/data_test_01.csv") as f:
+    separator = st.sidebar.text_input("seperator data in the csv table", value=",")
+    with open("data/sample_data_multicycle.csv") as f:
         st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
     st.sidebar.markdown("## Criterion")
@@ -106,10 +107,10 @@ def base_section():
                                                 ))
             model.set_temperature_interpolation()
             model.set_food_availablelity_data()
-            model.set_growth_paremater(w0=w0, wn=wn, n0=n0, sr=sr)
+            model.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=0, sr=0.92)
             model.set_interpolate_biochem(df)
-            model.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
-            model.set_pond_data(area=area)
+            # model.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
+            # model.set_pond_data(area=area)
 
             alpha = model.fit()
 
@@ -123,8 +124,6 @@ def base_section():
             time_expense.append(end_time - start_time)
             error.append(model.mse())
 
-        
-
         report = pd.DataFrame({
             "alpha1": alpha1,
             "alpha2": alpha2,
@@ -134,16 +133,28 @@ def base_section():
             "time_expense": time_expense
         })
 
+        report.to_csv("data/alpha.csv", index=False)
+
+        st.markdown("""
+            # Summary
+
+            This is a summary of the estimation parameter for cyle/cycles of shrimp growth model. Table below shows the alpha or the paramters of our shrimp growth model, 
+            time of estimation, and error of the estimation. 
+        """)
         st.write(report)
 
-        
+        st.markdown("""
+            The next section is a visualization for comparison of realized vs simulated the shrimp growth data. In each cycle there will be visualization for temperature, $NH_3$ and dissolved oxygen.
+            Besides that, there is also a table which is shrimp growth data that is used to create estimation.
+        """)
+                
         for j, i in enumerate(cycle):
             if len(i) == 2:
                 ndf = root_df.loc[i[0]:i[1]-1]
             else:
                 ndf = root_df.loc[i[0]:]
 
-            st.write("Siklus - {}".format(j+1))
+            st.markdown("## Cycle - {}".format(j+1))
             st.markdown("---")
 
             model_test = ParemeterEstimation(df=ndf, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
@@ -158,32 +169,31 @@ def base_section():
                                                 ))
             model_test.set_temperature_interpolation()
             model_test.set_food_availablelity_data()
-            model_test.set_growth_paremater(w0=w0, wn=wn, n0=n0, sr=sr)
+            model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=100, sr=0.92)
             model_test.set_interpolate_biochem(ndf)
-            model_test.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
-            model_test.set_pond_data(area=area)
+            # model_test.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
+            # model_test.set_pond_data(area=area)
             
             a1, a2, a3, a4 = tuple(report[["alpha1", "alpha2", "alpha3", "alpha4"]].iloc[j].values)
             weight = model_test.multiple_operation_v2(ndf["DOC"], a1, a2, a3, a4)
-        
-    
-            option2 = LineScatter("Weight (Gr)", ndf["DOC"].tolist(), weight, ndf["DOC"].tolist(), ndf["ABW"].tolist(), labels=["estimation", "abw"]).plot()
-            option2["dataZoom"] = [{
-                "start": 0, 
-                "end": 30
-            }]
-            st_echarts(options=option2)
 
-            ndf.replace(np.nan, None, inplace=True)
+            col1, col2 = st.columns((3, 1))
 
-            option3 = Scatter("Temperature",  ndf["DOC"].tolist(), ndf["Temp"].tolist()).plot()
-            st_echarts(options=option3)
+            with col1:
+                option2 = LineScatter("Weight (Gr)", ndf["DOC"].tolist(), weight, ndf["DOC"].tolist(), ndf["ABW"].tolist(), labels=["estimation", "abw"]).plot()
+                st_echarts(options=option2)
 
-            option4 = Scatter("DO",  ndf["DOC"].tolist(), ndf["DO"].tolist()).plot()
-            st_echarts(options=option4)
+                ndf.replace(np.nan, None, inplace=True)
 
-            option5 = Scatter("NH3", ndf["DOC"].tolist(), ndf["NH3"].tolist()).plot()
-            st_echarts(options=option5)
+                option3 = Scatter("Temperature",  ndf["DOC"].tolist(), ndf["Temp"].tolist()).plot()
+                st_echarts(options=option3)
 
-            st.write(ndf)
+                option4 = Scatter("DO",  ndf["DOC"].tolist(), ndf["DO"].tolist()).plot()
+                st_echarts(options=option4)
+
+                option5 = Scatter("NH3", ndf["DOC"].tolist(), ndf["NH3"].tolist()).plot()
+                st_echarts(options=option5)
+
+            col2.markdown("### data source")
+            col2.dataframe(ndf)
             

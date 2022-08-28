@@ -131,6 +131,8 @@ def base_section():
 
         st.write(report)
 
+        report.to_csv("data/alpha.csv")
+
         # cycle_option = ["cycle_{}".format(i+1) for i in range(len(cycle))]
         # cycle_selected = st.selectbox("select cycle", options=cycle_option)
 

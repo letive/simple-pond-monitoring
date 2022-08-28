@@ -36,6 +36,62 @@ class Line:
         return option
 
 
+class LineForecast:
+    def __init__(self, title: str, x: list, y: list, betweenes_index: int, labels: list, legend: bool = False, base_color='blue', forecast_color='red'):
+        self.title = title
+        self.x = x
+        self.y = y
+        self.labels = labels
+        self.legend = legend
+        self.base_col = base_color
+        self.forecast_col = forecast_color
+        self.betweenes_index = betweenes_index
+
+    def __get_visual_map(self):
+        pieces = [{
+            "lte": self.betweenes_index,
+            "color": self.base_col
+        }, {
+            "gt": self.betweenes_index,
+            "lte": len(self.y[0]),
+            "color": self.forecast_col
+        }]
+
+        return {
+            "show": False,
+            "dimension": 0, 
+            "pieces": pieces
+        }
+
+
+    def plot(self):
+        legend = {
+            "data": self.labels,
+            "show": self.legend,
+            "top": "10%"
+        }
+        series = [{
+            "name": i[1],
+            "data": self.y[i[0]],
+            "type": "line",
+            "symbol": "none"
+        } for i in enumerate(self.labels)]
+        
+        option = {
+            "title":{"text": self.title},
+            "legend": legend,
+            "tooltip":{"trigger": "axis"},
+            "xAxis": {
+                "type": "category",
+                "data": self.x
+            },
+            "yAxis": {"type": "value"},
+            "visualMap": self.__get_visual_map(),
+            "series": series
+        }
+
+        return option
+
 class Pie:
     def __init__(self, title, data, douhgnut: bool = False, legend: bool = False) -> None:
         self.title = title

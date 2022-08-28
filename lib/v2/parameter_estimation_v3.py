@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.interpolate import CubicSpline
-from lib.helpers_mod import integrate_function, generate_interpolate_function
+from lib.helpers_mod.helpers import integrate_function, generate_interpolate_function
 from scipy.integrate import quad
 
 class ParemeterEstimation:
@@ -67,7 +67,8 @@ class ParemeterEstimation:
         self.fa_data = df
 
 
-    def set_growth_paremater(self, w0, wn, n0, sr):
+    def set_growth_paremater(self, t0, w0, wn, n0, sr):
+        self.t0 = t0
         self.w0 = w0
         self.wn = wn
         self.n0 = n0
@@ -90,6 +91,8 @@ class ParemeterEstimation:
         self.f_nh4 = generate_interpolate_function(df, self.col_doc, self.col_uia)
         self.f_do = generate_interpolate_function(df, self.col_doc, self.col_do)
 
+    def integrate_temp(self, t):
+        return self.f_temp_crit(self.f_temp(t))
 
     def multiple_operation_v2(self, data, alpha, alpha1, alpha2, alpha3):
         integrale1, integrale2, integrale3 = 0, 0, 0
@@ -98,15 +101,17 @@ class ParemeterEstimation:
         for t in data:
             if t-1 == 0:
                 integrale1, integrale2, integrale3 = 0, 0, 0
-                integrale1 = integrale1 + quad(integrate_function, 0, t-1, args=(self.f_temp, self.cond_temp, "temperature"))[0]
-                integrale2 = integrale2 + quad(integrate_function, 0, t-1, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
-                integrale3 = integrale3 + quad(integrate_function, 0, t-1, args=(self.f_do, self.cond_do, "do"))[0]
+                # integrale1 = integrale1 + quad(integrate_function, self.t0, t-1, args=(self.f_temp, self.cond_temp, "temperature"))[0]
+                integrale1 = integrale1 + quad(self.integrate_temp, self.t0, t-1)[0]
+                integrale2 = integrale2 + quad(integrate_function, self.t0, t-1, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
+                integrale3 = integrale3 + quad(integrate_function, self.t0, t-1, args=(self.f_do, self.cond_do, "do"))[0]
             else:
-                integrale1 = integrale1 + quad(integrate_function, t-2, t-1, args=(self.f_temp, self.cond_temp, "temperature"))[0]
+                # integrale1 = integrale1 + quad(integrate_function, t-2, t-1, args=(self.f_temp, self.cond_temp, "temperature"))[0]
+                integrale1 = integrale1 + quad(self.integrate_temp, t-2, t-1)[0]
                 integrale2 = integrale2 + quad(integrate_function, t-2, t-1, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
                 integrale3 = integrale3 + quad(integrate_function, t-2, t-1, args=(self.f_do, self.cond_do, "do"))[0]
 
-            wt.append((self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * np.exp(-1 * (alpha*integrale1 + alpha1*integrale2 + alpha2*integrale3 + (alpha3*(t-1 - 0)))))**3)
+            wt.append((self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * np.exp(-1 * (alpha*integrale1 + alpha1*integrale2 + alpha2*integrale3 + alpha3*(t-1 - self.t0))))**3)
             
         return wt
 
@@ -114,7 +119,7 @@ class ParemeterEstimation:
     def fit(self):
         df = self.df.copy()
         self.set_interpolate_biochem(df)
-        alpha = curve_fit(self.multiple_operation_v2, df[self.col_doc].values, df[self.col_abw].values)[0]
+        alpha = curve_fit(self.multiple_operation_v2, df[self.col_doc].values, df[self.col_abw].values, bounds=(-1,1))[0]
         self.alpha = alpha
         return alpha
 
