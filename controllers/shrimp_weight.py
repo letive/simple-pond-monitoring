@@ -92,9 +92,12 @@ def base_section():
             ndf.replace(np.nan, None, inplace=True)
             bio_chem = pd.DataFrame({
                 "DOC": doc,
-                "Temp": np.random.choice(ndf["Temp"], len(doc)),
-                "DO": np.random.choice(ndf["DO"], len(doc)),
-                "NH3": np.random.choice(ndf["NH3"], len(doc))
+                "Temp": [ndf["Temp"].mean()]*len(doc),
+                "DO": [ndf["DO"].mean()]*len(doc),
+                "NH3": [ndf["NH3"].mean()]*len(doc),
+                # "Temp": np.random.choice(ndf["Temp"], len(doc)),
+                # "DO": np.random.choice(ndf["DO"], len(doc)),
+                # "NH3": np.random.choice(ndf["NH3"], len(doc))
             })
 
             model_test = ParemeterEstimation(df=bio_chem, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
