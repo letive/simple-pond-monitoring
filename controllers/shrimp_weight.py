@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_v3 import ParemeterEstimation
-# from lib.helpers_mod import get_cycle_range
+from lib.helpers import get_temperature_data, air_to_pond_temperature
 from lib.plot import LineForecast
 import numpy as np
 import pandas as pd
@@ -42,7 +42,7 @@ def base_section():
             except:
                 alpha = ""
 
-        st.markdown(""" `Please make sure that T is greater than` $t_0$. In this case, $t_0$ and $w_{t_0}$ are obtained from the actual data. 
+        st.markdown(""" `Please make sure that T is greater than` $t_0$ and your range of prediction not more than two weeks. In this case, $t_0$ and $w_{t_0}$ are obtained from the actual data. 
             $t_0$ is the last DOC and whereas $w_{t_0}$ is the last ABW which related to $t0$.
         """)
 
@@ -86,18 +86,22 @@ def base_section():
         t0 = int(ndf["DOC"].max())
         w0 = ndf["ABW"].max()
 
-        if t0 <= T:
+        if (t0 <= T) and ((T-t0) <= 15) :
             doc = list(range(t0+1, T))
 
             ndf.replace(np.nan, None, inplace=True)
+
+            previous_temp = ndf["Temp"].max()
+            temp_data = get_temperature_data()
+            temp_data = air_to_pond_temperature(temp_data, previous_temp)
+
+            doc = list(range(t0+1, T))
+
             bio_chem = pd.DataFrame({
                 "DOC": doc,
-                "Temp": [ndf["Temp"].mean()]*len(doc),
+                "Temp": temp_data["pond_temp"].loc[:len(doc)-1],
                 "DO": [ndf["DO"].mean()]*len(doc),
-                "NH3": [ndf["NH3"].mean()]*len(doc),
-                # "Temp": np.random.choice(ndf["Temp"], len(doc)),
-                # "DO": np.random.choice(ndf["DO"], len(doc)),
-                # "NH3": np.random.choice(ndf["NH3"], len(doc))
+                "NH3": [ndf["NH3"].mean()]*len(doc)
             })
 
             model_test = ParemeterEstimation(df=bio_chem, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
@@ -121,4 +125,4 @@ def base_section():
 
             st_echarts(options=option)
         else:
-            st.error("Error")
+            st.error("Error. Maybe your T not in range or your range of prediction more than 2 weeks")
