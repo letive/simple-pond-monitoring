@@ -57,7 +57,7 @@ def base_section():
     uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=0.01, step=1.,format="%.2f")
 
     do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
-    do_suitable_min = do_conditon.number_input("DO suitable min", value=5.0, step=1.,format="%.2f") 
+    do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
     do_suitable_max = do_conditon.number_input("DO suitable max", value=10.0, step=1.,format="%.2f") 
     do_optimal_min = do_conditon.number_input("DO optimal min", value=6.0, step=1.,format="%.2f") 
     do_optimal_max = do_conditon.number_input("DO optimal max", value=9.0, step=1.,format="%.2f")
