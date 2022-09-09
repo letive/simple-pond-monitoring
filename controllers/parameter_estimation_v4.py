@@ -1,4 +1,3 @@
-from weakref import CallableProxyType
 import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_v3 import ParemeterEstimation

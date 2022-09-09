@@ -1,11 +1,9 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_v3 import ParemeterEstimation
-from lib.helpers import get_temperature_data, air_to_pond_temperature
 from lib.plot import Line
 import numpy as np
 import pandas as pd
-import timeit
 from lib.population import population_v3, harvested_population, harvested_biomass, pond_remaining_biomass
 from lib.helpers import heaviside_step
 
@@ -84,10 +82,12 @@ def base_section():
         n0 = 100
         sr = 0.92
 
-        T = int(ndf["DOC"].max())+1
+        T = int(ndf["DOC"].max())
 
         m = -np.log(sr)/T
 
+        ndf = ndf.loc[1:]
+        
         model_test = ParemeterEstimation(df=ndf, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
         model_test.set_conditional_parameter(cond_temp=(
                                                 temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max
