@@ -67,7 +67,7 @@ def base_section():
 
         temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max = 25, 28, 32, 33
         uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max = 0, 0.0, 0.01, 0.02
-        do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max = 2, 4.5, 9, 10
+        do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max = 4, 6, 9, 10
 
         wn = 45
 

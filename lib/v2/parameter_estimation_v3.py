@@ -99,19 +99,17 @@ class ParemeterEstimation:
     
         wt = []
         for t in data:
-            if t-1 == 0:
+            if (t-1 == 0) or (t-self.t0 == 0):
                 integrale1, integrale2, integrale3 = 0, 0, 0
-                # integrale1 = integrale1 + quad(integrate_function, self.t0, t-1, args=(self.f_temp, self.cond_temp, "temperature"))[0]
-                integrale1 = integrale1 + quad(self.integrate_temp, self.t0, t-1)[0]
-                integrale2 = integrale2 + quad(integrate_function, self.t0, t-1, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
-                integrale3 = integrale3 + quad(integrate_function, self.t0, t-1, args=(self.f_do, self.cond_do, "do"))[0]
+                integrale1 = integrale1 + quad(self.integrate_temp, self.t0, t)[0]
+                integrale2 = integrale2 + quad(integrate_function, self.t0, t, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
+                integrale3 = integrale3 + quad(integrate_function, self.t0, t, args=(self.f_do, self.cond_do, "do"))[0]
             else:
-                # integrale1 = integrale1 + quad(integrate_function, t-2, t-1, args=(self.f_temp, self.cond_temp, "temperature"))[0]
-                integrale1 = integrale1 + quad(self.integrate_temp, t-2, t-1)[0]
-                integrale2 = integrale2 + quad(integrate_function, t-2, t-1, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
-                integrale3 = integrale3 + quad(integrate_function, t-2, t-1, args=(self.f_do, self.cond_do, "do"))[0]
+                integrale1 = integrale1 + quad(self.integrate_temp, t-1, t)[0]
+                integrale2 = integrale2 + quad(integrate_function, t-1, t, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
+                integrale3 = integrale3 + quad(integrate_function, t-1, t, args=(self.f_do, self.cond_do, "do"))[0]
 
-            wt.append((self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * np.exp(-1 * (alpha*integrale1 + alpha1*integrale2 + alpha2*integrale3 + alpha3*(t-1 - self.t0))))**3)
+            wt.append((self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * np.exp(-1 * (alpha*integrale1 + alpha1*integrale2 + alpha2*integrale3 + alpha3*(t - self.t0))))**3)
             
         return wt
 
