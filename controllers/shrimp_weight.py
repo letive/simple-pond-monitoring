@@ -1,11 +1,10 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-from lib.v2.parameter_estimation_v3 import ParemeterEstimation
+from lib.v2.parameter_estimation_v4 import ParemeterEstimation
 from lib.helpers import get_temperature_data, air_to_pond_temperature
 from lib.plot import LineForecast
 import numpy as np
 import pandas as pd
-import timeit
 
 def base_section():
     
@@ -111,15 +110,12 @@ def base_section():
                                                     uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
                                                 ), cond_do=(
                                                     do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
-                                                ), cond_csc=(
-                                                    0, 0, 0, 0
                                                 ))
             model_test.set_temperature_interpolation()
-            model_test.set_food_availablelity_data()
-            model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=0, sr=0)
+            model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn)
             model_test.set_interpolate_biochem(bio_chem)
 
-            weight = model_test.multiple_operation_v2(doc, alpha[0], alpha[1], alpha[2], alpha[3])
+            weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
 
             option = LineForecast("Shrimp Growth Forecast", ndf["DOC"].tolist() + doc, [ndf["ABW"].tolist() + weight ], float(t0), labels=["value"] ).plot()
 

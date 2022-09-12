@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-from lib.v2.parameter_estimation_v3 import ParemeterEstimation
+from lib.v2.parameter_estimation_v4 import ParemeterEstimation
 from lib.helpers_mod.helpers import get_cycle_range
 from lib.plot import LineScatter, Scatter
 import numpy as np
@@ -66,8 +66,6 @@ def base_section():
     # csc_suitable_max = csc_conditon.number_input("CSC suitable max", value=3.0, step=1.,format="%.2f") 
     # csc_optimal_min = csc_conditon.number_input("CSC optimal min", value=0.0, step=1.,format="%.2f") 
     # csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
-
-    csc_suitable_min, csc_optimal_min, csc_optimal_max, csc_suitable_max = 0, 0, 0, 0
     
 
     submit = st.sidebar.button("submit")
@@ -101,12 +99,9 @@ def base_section():
                                                     uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
                                                 ), cond_do=(
                                                     do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
-                                                ), cond_csc=(
-                                                    csc_suitable_min, csc_optimal_min, csc_optimal_max, csc_suitable_max
                                                 ))
             model.set_temperature_interpolation()
-            model.set_food_availablelity_data()
-            model.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=0, sr=0.92)
+            model.set_growth_paremater(t0=t0, w0=w0, wn=wn)
             model.set_interpolate_biochem(df)
             # model.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
             # model.set_pond_data(area=area)
@@ -163,18 +158,15 @@ def base_section():
                                                     uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
                                                 ), cond_do=(
                                                     do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
-                                                ), cond_csc=(
-                                                    csc_suitable_min, csc_optimal_min, csc_optimal_max, csc_suitable_max
                                                 ))
             model_test.set_temperature_interpolation()
-            model_test.set_food_availablelity_data()
-            model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=100, sr=0.92)
+            model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn)
             model_test.set_interpolate_biochem(ndf)
             # model_test.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
             # model_test.set_pond_data(area=area)
             
             a1, a2, a3, a4 = tuple(report[["alpha1", "alpha2", "alpha3", "alpha4"]].iloc[j].values)
-            weight = model_test.multiple_operation_v2(ndf["DOC"], a1, a2, a3, a4)
+            weight = model_test.weight(ndf["DOC"], a1, a2, a3, a4)
 
             col1, col2 = st.columns((3, 1))
 

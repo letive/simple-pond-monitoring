@@ -25,13 +25,8 @@ class ParemeterEstimation:
         self.col_doc = col_doc
         self.col_abw = col_abw
 
-    def set_data_for_interpolation(self,  df = None, path: str = None, sep: str =","):
-        if type(df) == pd.DataFrame:
-            self.data_biochem = df
-        else:
-            self.data_biochem = pd.read_csv(path, sep=sep)
 
-    def set_conditional_parameter(self, cond_temp, cond_uia, cond_do, cond_csc):
+    def set_conditional_parameter(self, cond_temp, cond_uia, cond_do, cond_csc=None):
         self.cond_temp = cond_temp
         self.cond_uia = cond_uia
         self.cond_do = cond_do
@@ -51,23 +46,22 @@ class ParemeterEstimation:
 
         self.f_temp_crit = CubicSpline(x_sample, y_sample, bc_type="natural")
 
-    def set_food_availablelity_data(self, path=None, sep=","):
-        if path:
-            df = pd.read_csv(path, sep=sep)
-        else:
-            df = pd.DataFrame(
-                {
-                    "wt": ["1-3", "3-5", "5-7", "7-9", "9-11", "11-13", "13-15", "15-17", "17-30"],
-                    "21-24": [0.08, 0.07, 0.065, 0.06, 0.055, 0.05, 0.045, 0.04, 0.03],
-                    "24-28": [0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.024, 0.025, 0.02],
-                    "28-32": [0.07, 0.06, 0.055, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025],
-                }
-            )
+    # def set_food_availablelity_data(self, path=None, sep=","):
+    #     if path:
+    #         df = pd.read_csv(path, sep=sep)
+    #     else:
+    #         df = pd.DataFrame(
+    #             {
+    #                 "wt": ["1-3", "3-5", "5-7", "7-9", "9-11", "11-13", "13-15", "15-17", "17-30"],
+    #                 "21-24": [0.08, 0.07, 0.065, 0.06, 0.055, 0.05, 0.045, 0.04, 0.03],
+    #                 "24-28": [0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.024, 0.025, 0.02],
+    #                 "28-32": [0.07, 0.06, 0.055, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025],
+    #             }
+    #         )
 
-        self.fa_data = df
+    #     self.fa_data = df
 
-
-    def set_growth_paremater(self, t0, w0, wn, n0, sr):
+    def set_growth_paremater(self, t0, w0, wn, n0=None, sr=None):
         self.t0 = t0
         self.w0 = w0
         self.wn = wn
@@ -94,37 +88,47 @@ class ParemeterEstimation:
     def integrate_temp(self, t):
         return self.f_temp_crit(self.f_temp(t))
 
-    def multiple_operation_v2(self, data, alpha, alpha1, alpha2, alpha3):
+    def weight(self, data, alpha, alpha1, alpha2, alpha3):
+        
         integrale1, integrale2, integrale3 = 0, 0, 0
-    
         wt = []
         for t in data:
             if (t-1 == 0) or (t-self.t0 == 0):
-                integrale1, integrale2, integrale3 = 0, 0, 0
                 integrale1 = integrale1 + quad(self.integrate_temp, self.t0, t)[0]
                 integrale2 = integrale2 + quad(integrate_function, self.t0, t, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
                 integrale3 = integrale3 + quad(integrate_function, self.t0, t, args=(self.f_do, self.cond_do, "do"))[0]
+                integrale4 = t - self.t0
             else:
                 integrale1 = integrale1 + quad(self.integrate_temp, t-1, t)[0]
                 integrale2 = integrale2 + quad(integrate_function, t-1, t, args=(self.f_nh4, self.cond_uia, "nh4"))[0]
                 integrale3 = integrale3 + quad(integrate_function, t-1, t, args=(self.f_do, self.cond_do, "do"))[0]
+                integrale4 = t - self.t0
 
-            wt.append((self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * np.exp(-1 * (alpha*integrale1 + alpha1*integrale2 + alpha2*integrale3 + alpha3*(t - self.t0))))**3)
+            wt_i = (self.wn**(1/3) - (self.wn**(1/3) - self.w0**(1/3)) * 
+                np.exp(-1 * (alpha*integrale1 + alpha1*integrale2 + alpha2*integrale3 + alpha3*integrale4))
+            )**3
             
+            if wt:
+                if (wt_i < wt[-1]):
+                    wt.append(wt[-1])
+                else:
+                    wt.append(wt_i)
+            else:
+                wt.append(wt_i)
+
         return wt
 
 
     def fit(self):
         df = self.df.copy()
         self.set_interpolate_biochem(df)
-        alpha = curve_fit(self.multiple_operation_v2, df[self.col_doc].values, df[self.col_abw].values, bounds=(-1,1))[0]
+        alpha = curve_fit(self.weight, df[self.col_doc].values, df[self.col_abw].values, bounds=((-1, 1)))[0]
         self.alpha = alpha
         return alpha
 
-
     def mse(self):
         alpha, alpha1, alpha2, alpha3 = self.alpha
-        weight = np.asarray(self.multiple_operation_v2(self.df[self.col_doc], alpha, alpha1, alpha2, alpha3))
+        weight = np.asarray(self.weight(self.df[self.col_doc], alpha, alpha1, alpha2, alpha3))
         data = (self.df[self.col_abw] - weight)**2
         return np.mean(data)
 
