@@ -135,7 +135,10 @@ def base_section():
             This is a summary of the estimation parameter for cyle/cycles of shrimp growth model. Table below shows the alpha or the paramters of our shrimp growth model, 
             time of estimation, and error of the estimation. 
         """)
-        st.write(report)
+        # st.write(report)
+
+        styler = report.style.hide_index()
+        st.write(styler.to_html(), unsafe_allow_html=True)
 
         st.markdown("""
             The next section is a visualization for comparison of realized vs simulated the shrimp growth data. In each cycle there will be visualization for temperature, $NH_3$ and dissolved oxygen.
@@ -168,9 +171,11 @@ def base_section():
             a1, a2, a3, a4 = tuple(report[["alpha1", "alpha2", "alpha3", "alpha4"]].iloc[j].values)
             weight = model_test.weight(ndf["DOC"], a1, a2, a3, a4)
 
-            col1, col2 = st.columns((3, 1))
+            tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
 
-            with col1:
+            # col1, col2 = st.columns((3, 1))
+
+            with tab1:
                 option2 = LineScatter("Weight (Gr)", ndf["DOC"].tolist(), weight, ndf["DOC"].tolist(), ndf["ABW"].tolist(), labels=["estimation", "abw"]).plot()
                 st_echarts(options=option2)
 
@@ -185,6 +190,6 @@ def base_section():
                 option5 = Scatter("NH3", ndf["DOC"].tolist(), ndf["NH3"].tolist()).plot()
                 st_echarts(options=option5)
 
-            col2.markdown("### data source")
-            col2.dataframe(ndf)
+            tab2.markdown("### data source")
+            tab2.dataframe(ndf)
             
