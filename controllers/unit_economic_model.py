@@ -99,17 +99,16 @@ def base_section():
                                                 0, 0, 0, 0
                                             ))
         model_test.set_temperature_interpolation()
-        model_test.set_food_availablelity_data()
         model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=n0, sr=sr)
         model_test.set_interpolate_biochem(ndf)
 
-        weight = model_test.multiple_operation_v2(ndf["DOC"], alpha[0], alpha[1], alpha[2], alpha[3])
+        weight = model_test.weight(ndf["DOC"], alpha[0], alpha[1], alpha[2], alpha[3])
 
         option_wt = Line("weight", list(range(T)), [weight], labels=["weight"]).plot()
         st_echarts(options=option_wt)
 
         pops = []
-        for i in range(T):
+        for i in range(T-1):
             pops.append(
                 population_v3(i, n0, m, ph, doc, gamma, model_test.f_nh4, nh3_lim)
             )
@@ -131,7 +130,7 @@ def base_section():
         
 
         harvest_pops = []
-        for i in range(T):
+        for i in range(T-1):
             harvest_pops.append(
                 harvested_population(i, n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)
             )
@@ -150,13 +149,13 @@ def base_section():
         price["size"] = price["size"].apply(lambda x: int(x.split("_")[1]))
 
         rbio = []
-        for i in range(T):
+        for i in range(T-1):
             rbio.append(
                 pond_remaining_biomass(i, weight[i], n0, m, ph, doc, gamma, model_test.f_nh4, nh3_lim)
             )
         
         hbio = []
-        for i in range(T):
+        for i in range(T-1):
             hbio.append(
                 harvested_biomass(i, weight[i], n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)
             )
