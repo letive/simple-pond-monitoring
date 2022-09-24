@@ -86,7 +86,7 @@ def base_section():
 
         m = -np.log(sr)/T
 
-        ndf = ndf.loc[1:]
+        ndf = ndf.loc[0:]
         
         model_test = ParemeterEstimation(df=ndf, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
         model_test.set_conditional_parameter(cond_temp=(
@@ -108,7 +108,7 @@ def base_section():
         st_echarts(options=option_wt)
 
         pops = []
-        for i in range(T-1):
+        for i in range(T):
             pops.append(
                 population_v3(i, n0, m, ph, doc, gamma, model_test.f_nh4, nh3_lim)
             )
@@ -130,12 +130,13 @@ def base_section():
         
 
         harvest_pops = []
-        for i in range(T-1):
+        for i in range(T):
             harvest_pops.append(
                 harvested_population(i, n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)
             )
 
-        
+        harvest_pops = np.cumsum(harvest_pops).tolist()        
+
         option_harvest_pop = Line("Harvested Population", list(range(T)), [harvest_pops], labels=["harvested population"]).plot()
         st_echarts(options=option_harvest_pop)
 
@@ -149,13 +150,13 @@ def base_section():
         price["size"] = price["size"].apply(lambda x: int(x.split("_")[1]))
 
         rbio = []
-        for i in range(T-1):
+        for i in range(T):
             rbio.append(
                 pond_remaining_biomass(i, weight[i], n0, m, ph, doc, gamma, model_test.f_nh4, nh3_lim)
             )
         
         hbio = []
-        for i in range(T-1):
+        for i in range(T):
             hbio.append(
                 harvested_biomass(i, weight[i], n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)
             )

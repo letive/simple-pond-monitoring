@@ -55,26 +55,39 @@ def harvested_population(t, n0: float, m: float, ph: list, doc: list, final_doc:
 
     partial_harvest_at_t = ph * heaviside_step(t - doc)
 
-    if (t+1) >= final_doc: # t+1 because we use t from index of list for the looping
-        Nt = population_v3(t, n0, m, ph, doc, gamma, nh3_func, nh3_lim)
-        return partial_harvest_at_t.sum() + Nt
-    else:
-        return partial_harvest_at_t.sum()
+    try:
+        idx = int(np.where(doc == t)[0])
+        partial_harvest_at_t = partial_harvest_at_t[idx]
+    except:
+        partial_harvest_at_t = 0
 
-def harvested_biomass(t, wt, n0: float, m: float, ph: list, doc: list, final_doc: int, gamma: float, nh3_func, nh3_lim: float):
+    if (t+1) == final_doc: # t+1 because we use t from index of list for the looping
+        Nt = population_v3(t, n0, m, ph, doc, gamma, nh3_func, nh3_lim)
+        return partial_harvest_at_t + Nt
+    else:
+        return partial_harvest_at_t
+
+def harvested_biomass(t: float, wt: float, n0: float, m: float, ph: list, doc: list, final_doc: int, gamma: float, nh3_func, nh3_lim: float):
+    """
+    wt: list of weight at doc of partial harvest
+    n0: initial
+    """
     doc = np.array(doc)
     ph = np.array(ph)
 
-    if (t - doc).all() == 0:
-        bio_harvest_at_t = ph * heaviside_step(t - doc) * wt
-    else:
-        bio_harvest_at_t = ph * heaviside_step(t - doc) * 0
+    bio_harvest_at_t = ph * heaviside_step(t - doc) * wt
 
-    if (t+1) >= final_doc:
+    try:
+        idx = int(np.where(doc == t)[0])
+        bio_harvest_at_t = bio_harvest_at_t[idx]
+    except:
+        bio_harvest_at_t = 0
+
+    if (t+1) == final_doc:
         Nt = population_v3(t, n0, m, ph, doc, gamma, nh3_func, nh3_lim)
-        return bio_harvest_at_t.sum() + Nt * wt
+        return bio_harvest_at_t + Nt * wt
     else:
-        return bio_harvest_at_t.sum()
+        return bio_harvest_at_t
 
 def pond_remaining_biomass(t: int, wt: float, n0: float, m: float, ph: list, doc: list, gamma: float, nh3_func, nh3_lim: float):
     Nt = population_v3(t, n0, m, ph, doc, gamma, nh3_func, nh3_lim)
