@@ -10,8 +10,6 @@ from lib.helpers import heaviside_step
 from scipy.interpolate import CubicSpline
 
 def base_section():
-    
-    st.set_page_config(layout="wide")
 
     st.title("Unit Economic Model")
     st.markdown("Individual growth of shrimp in a cycle of cultivation. The perpose of this dashboard is to show the unit economic model which contains population, biomass, and the revenue model.")
@@ -105,6 +103,7 @@ def base_section():
         weight = model_test.weight(ndf["DOC"], alpha[0], alpha[1], alpha[2], alpha[3])
 
         option_wt = Line("weight", list(range(T)), [weight], labels=["weight"]).plot()
+        option_wt["color"] = ["#3AAE8E", "#fb0166"]
         st_echarts(options=option_wt)
 
         pops = []
@@ -119,12 +118,14 @@ def base_section():
 
         with sec_1_col1:
             option_pops = Line("Population", list(range(T)), [pops.tolist()], labels=["population"]).plot()
+            option_pops["color"] = ["#3AAE8E", "#fb0166"]
             st_echarts(options=option_pops)
 
         biomass = weight * pops / 1000
 
         with sec_1_col2:
             option_bio = Line("Biomass", list(range(T)), [biomass.tolist()], labels=["Biomassa (kg)"]).plot()
+            option_bio["color"] = ["#3AAE8E", "#fb0166"]
             st_echarts(options=option_bio)
 
         
@@ -138,6 +139,7 @@ def base_section():
         harvest_pops = np.cumsum(harvest_pops).tolist()        
 
         option_harvest_pop = Line("Harvested Population", list(range(T)), [harvest_pops], labels=["harvested population"]).plot()
+        option_harvest_pop["color"] = ["#3AAE8E", "#fb0166"]
         st_echarts(options=option_harvest_pop)
 
         price = pd.read_csv("data/shrimp_price.csv")
@@ -181,6 +183,7 @@ def base_section():
 
 
         option_revenuw = Line("Revenue", list(range(T)), [potential_revenue, realized_revenue.tolist()], labels=["potential", "realized"], legend=True).plot()
+        option_revenuw["color"] = ["#3AAE8E", "#fb0166"]
         st_echarts(options=option_revenuw)        
 
 

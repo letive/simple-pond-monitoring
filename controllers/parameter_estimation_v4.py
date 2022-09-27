@@ -8,18 +8,16 @@ import pandas as pd
 import timeit
 
 def base_section():
-    
-    st.set_page_config(layout="wide")
-    
-    t0 = st.sidebar.number_input("t0", value=0)
+    sec1_col1, sec1_col2 = st.columns(2)
+    # t0 = sec1_col1.number_input("t0", value=0)
     # sr = st.sidebar.number_input("survival rate", value=0.92)
     # n0 = st.sidebar.number_input("n0", value=100)
-    T = st.sidebar.number_input("T", value=120)    
+    # T = sec1_col1.number_input("T", value=120)    
     # area = st.sidebar.number_input("area", value=1000)
     # alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1.0, step=1.,format="%.2f")/100 
 
-    w0 = st.sidebar.number_input("w0", value=0.05)
-    wn = st.sidebar.number_input("wn", value=45)
+    # w0 = sec1_col2.number_input("w0", value=0.05)
+    # wn = sec1_col2.number_input("wn", value=45)
 
     # partial1 = st.sidebar.number_input("partial1", value=0.1)
     # partial2 = st.sidebar.number_input("partial2", value=0.1)
@@ -30,32 +28,31 @@ def base_section():
     # docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
     # docfinal = int(st.sidebar.number_input("doc final", value=120))
 
-    st.sidebar.markdown(""" 
-        ## Upload Data 
+    t0, T, w0, wn = 0, 120, 0.05, 45
 
-        Upload multi cycle data for more options to show and make sure the inital DOC equal to 1.
-    
-    """)
+    sec1_col1.markdown("""### Upload Data """)
 
-    df = st.sidebar.file_uploader("Growth Shrimp Data")
-    separator = st.sidebar.text_input("seperator data in the csv table", value=",")
+    df = sec1_col1.file_uploader("Shrimp Growth Data")
+    separator = sec1_col1.text_input("seperator data in the csv table", value=",")
     with open("data/sample_data_multicycle.csv") as f:
-        st.sidebar.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
+        sec1_col1.download_button('See the example of growth shrimp data', f, file_name='growth.csv')
 
-    st.sidebar.markdown("## Criterion")
-    temp_condition = st.sidebar.expander("Temperature condition")
+    sec1_col2.markdown("### Criterion")
+    sec1_col2.markdown("")
+    sec1_col2.markdown("")
+    temp_condition = sec1_col2.expander("Temperature condition")
     temp_suitable_min = temp_condition.number_input("Temperature suitable min", value=25.0, step=1.,format="%.2f") 
     temp_suitable_max = temp_condition.number_input("Temperature suitable max", value=33.0, step=1.,format="%.2f") 
     temp_optimal_min = temp_condition.number_input("Temperature optimal min", value=28.0, step=1.,format="%.2f") 
     temp_optimal_max = temp_condition.number_input("Temperature optimal max", value=32.0, step=1.,format="%.2f")
 
-    uia_condition = st.sidebar.expander("Unionized Amonia condition")
+    uia_condition = sec1_col2.expander("Unionized Amonia condition")
     uia_suitable_min = uia_condition.number_input("NH4 suitable min", value=0.0, step=1.,format="%.2f") 
     uia_suitable_max = uia_condition.number_input("NH4 suitable max", value=0.02, step=1.,format="%.2f") 
     uia_optimal_min = uia_condition.number_input("NH4 optimal min", value=0.0, step=1.,format="%.2f") 
     uia_optimal_max = uia_condition.number_input("NH4 optimal max", value=0.01, step=1.,format="%.2f")
 
-    do_conditon = st.sidebar.expander("Dissolved Oxygen Condition")
+    do_conditon = sec1_col2.expander("Dissolved Oxygen Condition")
     do_suitable_min = do_conditon.number_input("DO suitable min", value=4.0, step=1.,format="%.2f") 
     do_suitable_max = do_conditon.number_input("DO suitable max", value=10.0, step=1.,format="%.2f") 
     do_optimal_min = do_conditon.number_input("DO optimal min", value=6.0, step=1.,format="%.2f") 
@@ -68,7 +65,7 @@ def base_section():
     # csc_optimal_max = csc_conditon.number_input("CSC optimal max", value=0.5, step=1.,format="%.2f")
     
 
-    submit = st.sidebar.button("submit")
+    submit = st.button("submit")
 
     if submit:
         try:
@@ -132,7 +129,7 @@ def base_section():
         st.markdown("""
             # Summary
 
-            This is a summary of the estimation parameter for cyle/cycles of shrimp growth model. Table below shows the alpha or the paramters of our shrimp growth model, 
+            This is a summary of the estimation parameter for cyle/cycles of shrimp growth model. Table below shows the alpha or the parameters of our shrimp growth model, 
             time of estimation, and error of the estimation. 
         """)
         # st.write(report)
@@ -178,19 +175,21 @@ def base_section():
             with tab1:
 
                 option2 = LineScatter("Weight (Gr)", model.df["DOC"].tolist(), weight, model_test.df["DOC"].tolist(), model_test.df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
-                # print(option2)
+                option2["color"] = ["#3AAE8E", "#794429"]
                 st_echarts(options=option2)
 
                 ndf.replace(np.nan, None, inplace=True)
 
                 option3 = Scatter("Temperature",  ndf["DOC"].tolist(), ndf["Temp"].tolist()).plot()
+                option3["color"] = ["#3AAE8E", "#fb0166"]
                 st_echarts(options=option3)
 
                 option4 = Scatter("DO",  ndf["DOC"].tolist(), ndf["DO"].tolist()).plot()
+                option4["color"] = ["#3AAE8E", "#fb0166"]
                 st_echarts(options=option4)
             
                 option5 = Scatter("NH3", ndf["DOC"].tolist(), ndf["NH3"].tolist()).plot()
-                # print(option5)
+                option5["color"] = ["#3AAE8E", "#fb0166"]
                 st_echarts(options=option5)
 
             tab2.markdown("### data source")

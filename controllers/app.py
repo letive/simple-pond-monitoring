@@ -5,7 +5,7 @@ from lib.plot import Line, Pie
 import pandas as pd
 
 def base_section():
-    
+    # sidebar_head()
     st.set_page_config(layout="wide")
     
     t0 = st.sidebar.number_input("t0", value=0)

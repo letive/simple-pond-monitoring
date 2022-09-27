@@ -74,11 +74,29 @@ class LineForecast:
             "name": i[1],
             "data": self.y[i[0]],
             "type": "line",
-            "symbol": "none"
+            "symbol": "none",
+            "markArea": {
+                "itemStyle": {
+                    "color": "#f4f5fb"
+                },
+                "data": [
+                    [
+                        {
+                            "name": "forecast",
+                            "xAxis": self.betweenes_index
+                        },{
+                            "xAxis": self.x[-1]
+                        }
+                    ]
+                ]
+            }
         } for i in enumerate(self.labels)]
         
         option = {
-            "title":{"text": self.title},
+            "title":{
+                "text": self.title,
+                "left": "center"
+            },
             "legend": legend,
             "tooltip":{"trigger": "axis"},
             "xAxis": {
@@ -155,6 +173,7 @@ class LineScatter:
         option = {
             "title":{"text": self.title},
             "tooltip":{"trigger": "axis"},
+            "legend":{},
             "yAxis": {"type": "value"},
             "xAxis": {
                 "type": "category",

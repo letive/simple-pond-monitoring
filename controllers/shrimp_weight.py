@@ -10,8 +10,6 @@ def set_checkbox():
     st.session_state['alpha'] = True
 
 def base_section():
-    
-    st.set_page_config(layout="wide")
 
     st.title("Shrimp Weight")
     st.markdown("Individual growth of shrimp in a cycle of cultivation. The purpose of this dashboard is to show the forecast of growth shrimp. Before you start to use it, we suggest you download our data standard to use in this function. ")
@@ -136,7 +134,10 @@ def base_section():
 
             weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
 
-            option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc[1:], [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"] ).plot()
+            option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc[1:], 
+                [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"],
+            base_color="#3AAE8E",forecast_color="#fb0166" ).plot()
+            # option["color"] = ["#f4f6f9", "#3AAE8E"]
             st_echarts(options=option)
         else:
             st.error("Error. Maybe your T not in range or your range of prediction more than 2 weeks")
