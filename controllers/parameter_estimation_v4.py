@@ -187,8 +187,9 @@ def base_section():
 
                 option4 = Scatter("DO",  ndf["DOC"].tolist(), ndf["DO"].tolist()).plot()
                 st_echarts(options=option4)
-
+            
                 option5 = Scatter("NH3", ndf["DOC"].tolist(), ndf["NH3"].tolist()).plot()
+                print(option5)
                 st_echarts(options=option5)
 
             tab2.markdown("### data source")

@@ -136,7 +136,7 @@ def base_section():
 
             weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
 
-            option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc, [model.df["ABW"].tolist() + weight ], len(model.df["DOC"].tolist()), labels=["value"] ).plot()
+            option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc[1:], [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"] ).plot()
             st_echarts(options=option)
         else:
             st.error("Error. Maybe your T not in range or your range of prediction more than 2 weeks")
