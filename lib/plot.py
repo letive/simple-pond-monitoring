@@ -45,7 +45,7 @@ class LineForecast:
         self.legend = legend
         self.base_col = base_color
         self.forecast_col = forecast_color
-        self.betweenes_index = betweenes_index
+        self.betweenes_index = betweenes_index # based on index of DOC
 
     def __get_visual_map(self):
         pieces = [{

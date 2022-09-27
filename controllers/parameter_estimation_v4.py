@@ -102,7 +102,7 @@ def base_section():
                                                 ))
             model.set_temperature_interpolation()
             model.set_growth_paremater(t0=t0, w0=w0, wn=wn)
-            model.set_interpolate_biochem(df)
+            model.set_interpolate_biochem()
             # model.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
             # model.set_pond_data(area=area)
 
@@ -164,19 +164,20 @@ def base_section():
                                                 ))
             model_test.set_temperature_interpolation()
             model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn)
-            model_test.set_interpolate_biochem(ndf)
+            model_test.set_interpolate_biochem()
             # model_test.set_partial_harvest_parameter(doc=[docpartial1, docpartial2, docpartial3], ph=[partial1, partial2, partial3], final_doc=docfinal)
             # model_test.set_pond_data(area=area)
             
             a1, a2, a3, a4 = tuple(report[["alpha1", "alpha2", "alpha3", "alpha4"]].iloc[j].values)
-            weight = model_test.weight(ndf["DOC"], a1, a2, a3, a4)
+            weight = model_test.weight(model.df["DOC"], a1, a2, a3, a4)
 
             tab1, tab2 = st.tabs(["📈 Chart", "🗃 Data"])
 
             # col1, col2 = st.columns((3, 1))
 
             with tab1:
-                option2 = LineScatter("Weight (Gr)", ndf["DOC"].tolist(), weight, ndf["DOC"].tolist(), ndf["ABW"].tolist(), labels=["estimation", "abw"]).plot()
+                print(model.df)
+                option2 = LineScatter("Weight (Gr)", model.df["DOC"].tolist(), weight, model_test.df["DOC"].tolist(), model_test.df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
                 st_echarts(options=option2)
 
                 ndf.replace(np.nan, None, inplace=True)

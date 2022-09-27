@@ -100,7 +100,7 @@ def base_section():
                                             ))
         model_test.set_temperature_interpolation()
         model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn, n0=n0, sr=sr)
-        model_test.set_interpolate_biochem(ndf)
+        model_test.set_interpolate_biochem()
 
         weight = model_test.weight(ndf["DOC"], alpha[0], alpha[1], alpha[2], alpha[3])
 

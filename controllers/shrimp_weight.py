@@ -103,7 +103,8 @@ def base_section():
                 "DOC": doc,
                 "Temp": temp_data["pond_temp"].loc[:len(doc)-1],
                 "DO": [ndf["DO"].mean()]*len(doc),
-                "NH3": [ndf["NH3"].mean()]*len(doc)
+                "NH3": [ndf["NH3"].mean()]*len(doc),
+                "ABW": [0]*len(doc)
             })
 
             model = ParemeterEstimation(df=ndf, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
@@ -116,7 +117,7 @@ def base_section():
                                                 ))
             model.set_temperature_interpolation()
             model.set_growth_paremater(t0=0, w0=0.05, wn=wn)
-            model.set_interpolate_biochem(ndf)
+            model.set_interpolate_biochem()
 
             alpha = model.fit()
 
@@ -131,12 +132,11 @@ def base_section():
                                                 ))
             model_test.set_temperature_interpolation()
             model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn)
-            model_test.set_interpolate_biochem(bio_chem)
+            model_test.set_interpolate_biochem()
 
             weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
 
-            option = LineForecast("Shrimp Growth Forecast", ndf["DOC"].tolist() + doc, [ndf["ABW"].tolist() + weight ], float(t0), labels=["value"] ).plot()
-
+            option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc, [model.df["ABW"].tolist() + weight ], len(model.df["DOC"].tolist()), labels=["value"] ).plot()
             st_echarts(options=option)
         else:
             st.error("Error. Maybe your T not in range or your range of prediction more than 2 weeks")

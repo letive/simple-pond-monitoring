@@ -16,6 +16,24 @@ class ParemeterEstimation:
         else:
             self.df = pd.read_csv(path, sep=sep)
         
+        self.df = self.df[[col_doc, col_temp, col_uia, col_do, col_abw]]
+
+        if 1 not in self.df[col_doc].tolist():
+            df1 = pd.DataFrame({
+                col_doc:[1],
+                col_temp: [np.nan],
+                col_uia: [np.nan],
+                col_do: [np.nan],
+                col_abw: [0.05]
+            })
+            self.df = pd.concat([df1, self.df], axis=0, ignore_index=True)
+
+        self.df[col_temp] = self.df[col_temp].fillna(self.df[col_temp].mean())
+        self.df[col_uia] = self.df[col_uia].fillna(self.df[col_uia].mean())
+        self.df[col_do] = self.df[col_do].fillna(self.df[col_do].mean())
+
+        self.df = self.df[self.df[col_abw].notna()].reset_index(drop=True)
+        
         self.wt_min_1 = 0
         self.biomass_min_1 = 0
 
