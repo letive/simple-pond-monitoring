@@ -145,7 +145,9 @@ class LineScatter:
             "symbol": "none"
         }, {
             "name": self.labels[1],
-            "data": np.append(self.absis_scatter.reshape(self.absis_scatter.size,1), 
+            # "data": np.append(self.absis_scatter.reshape(self.absis_scatter.size,1), 
+            #         self.ordinat_scatter.reshape(self.ordinat_scatter.size,1), axis=1).tolist(),
+            "data": np.append(np.array(list(range(len(self.x)))).reshape(len(self.x), 1), 
                     self.ordinat_scatter.reshape(self.ordinat_scatter.size,1), axis=1).tolist(),
             "type": "scatter"
         }]

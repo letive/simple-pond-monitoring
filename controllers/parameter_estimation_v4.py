@@ -176,8 +176,9 @@ def base_section():
             # col1, col2 = st.columns((3, 1))
 
             with tab1:
-                print(model.df)
+
                 option2 = LineScatter("Weight (Gr)", model.df["DOC"].tolist(), weight, model_test.df["DOC"].tolist(), model_test.df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
+                # print(option2)
                 st_echarts(options=option2)
 
                 ndf.replace(np.nan, None, inplace=True)
@@ -189,7 +190,7 @@ def base_section():
                 st_echarts(options=option4)
             
                 option5 = Scatter("NH3", ndf["DOC"].tolist(), ndf["NH3"].tolist()).plot()
-                print(option5)
+                # print(option5)
                 st_echarts(options=option5)
 
             tab2.markdown("### data source")
