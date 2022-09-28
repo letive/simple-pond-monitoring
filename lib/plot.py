@@ -34,6 +34,41 @@ class Line:
         }
 
         return option
+    
+class Bar:
+    def __init__(self, title: str, x: list, y: list, labels: list, legend: bool = False):
+        self.title = title
+        self.x = x
+        self.y = y
+        self.labels = labels
+        self.legend = legend
+
+    def plot(self):
+        legend = {
+            "data": self.labels,
+            "show": self.legend,
+            "top": "10%"
+        }
+        series = [{
+            "name": i[1],
+            "data": self.y[i[0]],
+            "type": "bar",
+            "symbol": "none"
+        } for i in enumerate(self.labels)]
+        
+        option = {
+            "title":{"text": self.title},
+            "legend": legend,
+            "tooltip":{"trigger": "axis"},
+            "xAxis": {
+                "type": "category",
+                "data": self.x
+            },
+            "yAxis": {"type": "value"},
+            "series": series
+        }
+
+        return option
 
 
 class LineForecast:

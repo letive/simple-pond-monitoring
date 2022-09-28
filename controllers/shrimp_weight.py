@@ -137,7 +137,10 @@ def base_section():
             option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc[1:], 
                 [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"],
             base_color="#3AAE8E",forecast_color="#fb0166" ).plot()
-            # option["color"] = ["#f4f6f9", "#3AAE8E"]
+            option["xAxis"]["name"] = "DOC"
+            option["yAxis"]["name"] = "ABW (gr)"
+            option["yAxis"]["nameLocation"] = "middle"
+            option["yAxis"]["nameGap"] = 50
             st_echarts(options=option)
         else:
             st.error("Error. Maybe your T not in range or your range of prediction more than 2 weeks")

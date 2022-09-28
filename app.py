@@ -12,10 +12,9 @@ menu = sidebar_menu()
 if menu == "Main":
     pass
 elif menu == "Model Validation":
+    st.title("Model Validation")
     st.markdown(
         """
-        ## Model Validation
-
         This menu used to make a model validation about our model that was developed. This step is important, 
         because besides we know how effective the model, we also will get the greater alpha parameter that was estimated by system. 
         """

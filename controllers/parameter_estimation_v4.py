@@ -174,8 +174,12 @@ def base_section():
 
             with tab1:
 
-                option2 = LineScatter("Weight (Gr)", model.df["DOC"].tolist(), weight, model_test.df["DOC"].tolist(), model_test.df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
+                option2 = LineScatter("Weight", model.df["DOC"].tolist(), weight, model_test.df["DOC"].tolist(), model_test.df["ABW"].tolist(), labels=["estimation", "abw"]).plot()
                 option2["color"] = ["#3AAE8E", "#794429"]
+                option2["xAxis"]["name"] = "DOC"
+                option2["yAxis"]["name"] = "ABW (gr)"
+                option2["yAxis"]["nameLocation"] = "middle"
+                option2["yAxis"]["nameGap"] = 50
                 st_echarts(options=option2)
 
                 ndf.replace(np.nan, None, inplace=True)

@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_v4 import ParemeterEstimation
-from lib.plot import Line
+from lib.plot import Line, Bar
 import numpy as np
 import pandas as pd
 from lib.population import population_v3, harvested_population, harvested_biomass, pond_remaining_biomass
@@ -102,8 +102,12 @@ def base_section():
 
         weight = model_test.weight(ndf["DOC"], alpha[0], alpha[1], alpha[2], alpha[3])
 
-        option_wt = Line("weight", list(range(T)), [weight], labels=["weight"]).plot()
+        option_wt = Line("Weight", list(range(T)), [weight], labels=["weight"]).plot()
         option_wt["color"] = ["#3AAE8E", "#fb0166"]
+        option_wt["xAxis"]["name"] = "DOC"
+        option_wt["yAxis"]["name"] = "ABW (gr)"
+        option_wt["yAxis"]["nameLocation"] = "middle"
+        option_wt["yAxis"]["nameGap"] = 50
         st_echarts(options=option_wt)
 
         pops = []
@@ -117,7 +121,7 @@ def base_section():
         sec_1_col1, sec_1_col2 = st.columns(2)
 
         with sec_1_col1:
-            option_pops = Line("Population", list(range(T)), [pops.tolist()], labels=["population"]).plot()
+            option_pops = Bar("Population", list(range(T)), [pops.tolist()], labels=["population"]).plot()
             option_pops["color"] = ["#3AAE8E", "#fb0166"]
             st_echarts(options=option_pops)
 
