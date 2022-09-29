@@ -40,8 +40,7 @@ class ParemeterEstimation:
         self.df[col_uia] = self.df[col_uia].fillna(self.df[col_uia].mean())
         self.df[col_do] = self.df[col_do].fillna(self.df[col_do].mean())
 
-        # self.df = self.df[self.df[col_abw].notna()].reset_index(drop=True)
-        self.df = self.df.dropna().reset_index(drop=True)
+        self.df = self.df[self.df[col_abw].notna()].reset_index(drop=True)
         
         self.wt_min_1 = 0
         self.biomass_min_1 = 0
