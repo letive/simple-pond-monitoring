@@ -17,7 +17,6 @@ class ParemeterEstimation:
         else:
             data = pd.read_csv(path, sep=sep)
         
-        data = data[data[col_abw].notna()].reset_index(drop=True)
         data.reset_index(drop=True, inplace=True)
 
         cols = [re.sub(" ", "", i) for i in data.columns]

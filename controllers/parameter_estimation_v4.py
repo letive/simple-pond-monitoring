@@ -72,6 +72,7 @@ def base_section():
             root_df = pd.read_csv(df, sep=separator)
         except:
             root_df = pd.read_csv("data/data_test_01.csv")
+            
         cycle = get_cycle_range(root_df)
         alpha1 = []
         alpha2 = []

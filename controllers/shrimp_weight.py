@@ -83,6 +83,8 @@ def base_section():
         except:
             ndf = pd.read_csv("data/data_test_01.csv")
 
+        notnull_df = ndf[ndf["ABW"].notna()]
+
         t0 = int(ndf["DOC"].max())
         w0 = ndf["ABW"].max()
 
@@ -137,10 +139,10 @@ def base_section():
             st.write(model_test.df)
 
             weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
-            origin_doc = model.df["DOC"].tolist() + doc[1:]
+            origin_doc = notnull_df["DOC"].tolist() + doc[1:]
 
             option = LineForecast("Shrimp Growth Forecast", origin_doc, 
-                [model.df["ABW"].tolist() + weight[1:]], len(model.df["DOC"].tolist()), labels=["value"],
+                [notnull_df["ABW"].tolist() + weight[1:]], len(notnull_df["DOC"].tolist()), labels=["value"],
 
             base_color="#3AAE8E",forecast_color="#fb0166" ).plot()
             option["xAxis"]["name"] = "DOC"
