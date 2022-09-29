@@ -91,6 +91,21 @@ def base_section():
 
             ndf.replace(np.nan, None, inplace=True)
 
+            model = ParemeterEstimation(df=ndf, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
+            model.set_conditional_parameter(cond_temp=(
+                                                    temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max
+                                                ), cond_uia=(
+                                                    uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
+                                                ), cond_do=(
+                                                    do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
+                                                ))
+            model.set_temperature_interpolation()
+            model.set_growth_paremater(t0=0, w0=0.05, wn=wn)
+            model.set_interpolate_biochem()
+            alpha = model.fit()
+            st.write(model.df)
+
+
             previous_temp = ndf["Temp"].max()
             temp_data = get_temperature_data()
             temp_data = air_to_pond_temperature(temp_data, previous_temp)
@@ -103,23 +118,9 @@ def base_section():
                 "DO": [ndf["DO"].mean()]*len(doc),
                 "NH3": [ndf["NH3"].mean()]*len(doc),
                 "ABW": [0]*len(doc)
-            })
+            })            
 
-            model = ParemeterEstimation(df=ndf, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
-            model.set_conditional_parameter(cond_temp=(
-                                                    temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max
-                                                ), cond_uia=(
-                                                    uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max
-                                                ), cond_do=(
-                                                    do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max
-                                                ))
-            model.set_temperature_interpolation()
-            model.set_growth_paremater(t0=0, w0=0.05, wn=wn)
-            model.set_interpolate_biochem()
-
-            origin_doc = model.df["DOC"].tolist()
-            alpha = model.fit()
-
+                        
 
             model_test = ParemeterEstimation(df=bio_chem, col_temp="Temp", col_uia="NH3", col_do="DO", col_doc="DOC")
             model_test.set_conditional_parameter(cond_temp=(
@@ -133,12 +134,13 @@ def base_section():
             model_test.set_growth_paremater(t0=t0, w0=w0, wn=wn)
             model_test.set_interpolate_biochem()
 
-            weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
+            st.write(model_test.df)
 
-            st.write(model.df)
+            weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
+            origin_doc = model.df["DOC"].tolist() + doc[1:]
 
             option = LineForecast("Shrimp Growth Forecast", origin_doc, 
-                [model.df["ABW"].tolist() ], len(model.df["DOC"].tolist()), labels=["value"],
+                [model.df["ABW"].tolist() + weight[1:]], len(model.df["DOC"].tolist()), labels=["value"],
 
             base_color="#3AAE8E",forecast_color="#fb0166" ).plot()
             option["xAxis"]["name"] = "DOC"
