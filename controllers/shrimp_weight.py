@@ -117,6 +117,7 @@ def base_section():
             model.set_growth_paremater(t0=0, w0=0.05, wn=wn)
             model.set_interpolate_biochem()
 
+            origin_doc = model.df["DOC"].tolist() + doc[1:]
             alpha = model.fit()
 
 
@@ -136,7 +137,7 @@ def base_section():
 
             st.write(model.df["DOC"].tolist())
 
-            option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc[1:], 
+            option = LineForecast("Shrimp Growth Forecast", origin_doc, 
                 [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"],
             base_color="#3AAE8E",forecast_color="#fb0166" ).plot()
             option["xAxis"]["name"] = "DOC"
