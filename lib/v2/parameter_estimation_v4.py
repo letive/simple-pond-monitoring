@@ -25,7 +25,7 @@ class ParemeterEstimation:
         
         self.df = self.df[[col_doc, col_temp, col_uia, col_do, col_abw]]
         
-        if 1 not in self.df[col_doc].tolist() or (str(self.df[col_abw][0]).isnumeric() == False):
+        if (str(self.df[col_abw][0]).isnumeric() == False):
             df1 = pd.DataFrame({
                 col_doc:[1],
                 col_temp: [np.nan],
