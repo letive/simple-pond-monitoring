@@ -40,10 +40,7 @@ class ParemeterEstimation:
         data[col_uia] = data[col_uia].fillna(data[col_uia].mean())
         data[col_do] = data[col_do].fillna(data[col_do].mean())
 
-        print(data)
-        self.df = data.copy()
-
-        # self.df = data[data[col_abw].notna()].reset_index(drop=True)
+        self.df = data[data[col_abw].notna()].reset_index(drop=True)
         
         self.wt_min_1 = 0
         self.biomass_min_1 = 0
@@ -157,8 +154,9 @@ class ParemeterEstimation:
 
     def mse(self):
         alpha, alpha1, alpha2, alpha3 = self.alpha
-        weight = np.asarray(self.weight(self.df[self.col_doc], alpha, alpha1, alpha2, alpha3))
-        data = (self.df[self.col_abw] - weight)**2
+        df = self.df.copy()
+        weight = np.asarray(self.weight(df[self.col_doc], alpha, alpha1, alpha2, alpha3))
+        data = (df[self.col_abw] - weight)**2
         return np.mean(data)
 
         
