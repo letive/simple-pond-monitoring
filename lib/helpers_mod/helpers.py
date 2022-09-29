@@ -135,4 +135,3 @@ def generate_multicycle_interpolation(data):
         functions.append([f_temp, f_nh3, f_do])
     
     return functions, index
-        

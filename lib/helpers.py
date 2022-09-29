@@ -314,3 +314,23 @@ def air_to_pond_temperature(df, prev_temp):
     df["pond_temp"] = current_temp
 
     return df
+
+
+#########################################
+# feeding
+#########################################
+def feeding_expense(t, fc, biomassa, final_doc, formula_type=2, r=None):
+    """
+    r: feeding rate
+    fc: feed cost per kg
+    biomassa: biomassa in gr
+    formula_type: formula_type for feeding cost expense calculation. There are 1 and 2.
+    """
+    if formula_type == 1:
+        return biomassa / 1000 * r * fc
+    else:
+        formula3 = feed_formula3("data/data-feeding-formula-3.csv", ",")
+        if t < final_doc:
+            return (formula3[t] / 1000) * (1 + 0.2) * fc
+        else:
+            return 0

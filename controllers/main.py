@@ -2,12 +2,12 @@ import streamlit as st
 from streamlit_echarts import st_echarts
 from lib.v2.parameter_estimation_v4 import ParemeterEstimation
 from lib.helpers_mod.helpers import get_cycle_range
-from lib.plot import LineScatter, Scatter, Bar, Line
+from lib.plot import LineScatter, Scatter, Bar, Line, Pie
 import numpy as np
 import pandas as pd
 import timeit
 from lib.population import population_v3, harvested_population, harvested_biomass, pond_remaining_biomass
-from lib.helpers import heaviside_step
+from lib.helpers import heaviside_step, feeding_expense
 
 from scipy.interpolate import CubicSpline
 
@@ -197,7 +197,6 @@ def base_section():
             hbio.append(
                 harvested_biomass(i, weight[i], n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)
             )
-
         
         data_to_interpolate = price.groupby("size").mean()
         f = CubicSpline([0] + data_to_interpolate.index.tolist(), [0] + data_to_interpolate["price"].tolist())
@@ -217,30 +216,74 @@ def base_section():
             potential_revenue.append((rbio[i] * tetha * price))
 
 
-        option_revenuw = Line("Revenue", list(range(T)), [potential_revenue, realized_revenue.tolist()], labels=["potential", "realized"], legend=True).plot()
-        option_revenuw["color"] = ["#3AAE8E", "#fb0166"]
-        st_echarts(options=option_revenuw)       
-
-
         ########
-        # Cost
+        # Cost Expense
         ########
 
         # harvested cost
-        cost_harvest = (np.array(hbio)*h).sum()
+        cost_harvest = np.array(hbio)*h
 
         # energy cost
-        cost_energy = (np.ones(T)*e*820*24).sum()
+        cost_energy = np.ones(T)*e*820*24
 
         # probiotics cost
-        cost_probiotics = np.array([p if i < final_doc else 0 for i in range(T)]).sum()
+        cost_probiotics = np.array([p if i < final_doc else 0 for i in range(T)])
 
         # other cost
-        cost_other = np.array([o if i < final_doc else 0 for i in range(T)]).sum()
+        cost_other = np.array([o if i < final_doc else 0 for i in range(T)])
 
         # labor
-        cost_labor = np.array([labor if i < final_doc else 0 for i in range(T)]).sum()
+        cost_labor = np.array([labor if i < final_doc else 0 for i in range(T)])
 
         # bonuss expense
+        cost_bonuss = bonus * np.array(hbio)
 
         # feed cost
+        cost_feed = np.array([feeding_expense(i, fc, biomass[i], final_doc, formula, r) for i in range(T)])
+
+        all_data_cost = np.array([cost_harvest, cost_energy, cost_probiotics, cost_other, cost_labor, cost_bonuss, cost_feed])
+        daily_cost = all_data_cost.sum(axis=0)
+
+        profit = realized_revenue - daily_cost
+
+        option_revenue = Line("Revenue", list(range(T)), 
+                [potential_revenue, realized_revenue.tolist(), profit.tolist()], 
+                labels=["potential", "realized", "profit"], 
+                legend=True).plot()
+
+        option_revenue["color"] = ["#3AAE8E", "#fb0166", "#3963ff"]
+
+        dataviz = [
+            {
+                "value": cost_harvest.sum(),
+                "name": "Harvested"
+            }, {
+                "value": cost_energy.sum(),
+                "name": "Energy Consumption"
+            }, {
+                "value": cost_probiotics.sum(),
+                "name": "Probiotics"
+            }, {
+                "value": cost_other.sum(),
+                "name": "Others"
+            }, {
+                "value": cost_labor.sum(),
+                "name": "Labor"
+            }, {
+                "value": cost_bonuss.sum(),
+                "name": "Bonus"
+            }, {
+                "value": cost_feed.sum(),
+                "name": "Feed"
+            }
+        ]
+
+        cost_option = Pie(title="Cost", data=dataviz, douhgnut=True, legend=True).plot()
+
+
+        vis_col1, vis_col2 = st.columns((3,1))
+        with vis_col1:
+            st_echarts(options=option_revenue)
+        
+        with vis_col2:
+            st_echarts(options=cost_option)

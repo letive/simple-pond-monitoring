@@ -16,6 +16,8 @@ class ParemeterEstimation:
             self.df = df
         else:
             self.df = pd.read_csv(path, sep=sep)
+        
+        self.df.reset_index(drop=True, inplace=True)
 
         cols = [re.sub(" ", "", i) for i in self.df.columns]
         self.df.columns = cols
