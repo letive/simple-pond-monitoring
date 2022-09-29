@@ -246,9 +246,14 @@ def base_section():
 
         profit = realized_revenue - daily_cost
 
+        # option_revenue = Line("Revenue", list(range(T)), 
+        #         [potential_revenue, realized_revenue.tolist(), profit.tolist()], 
+        #         labels=["potential", "realized", "profit"], 
+        #         legend=True).plot()
+
         option_revenue = Line("Revenue", list(range(T)), 
-                [potential_revenue, realized_revenue.tolist(), profit.tolist()], 
-                labels=["potential", "realized", "profit"], 
+                [potential_revenue, realized_revenue.tolist()], 
+                labels=["potential", "realized"], 
                 legend=True).plot()
 
         option_revenue["color"] = ["#3AAE8E", "#fb0166", "#3963ff"]
