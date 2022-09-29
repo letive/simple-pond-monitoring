@@ -105,8 +105,6 @@ def base_section():
             model.set_growth_paremater(t0=0, w0=0.05, wn=wn)
             model.set_interpolate_biochem()
             alpha = model.fit()
-            st.write(model.df)
-
 
             previous_temp = ndf["Temp"].max()
             temp_data = get_temperature_data()
