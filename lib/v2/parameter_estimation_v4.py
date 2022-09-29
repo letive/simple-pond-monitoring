@@ -35,12 +35,12 @@ class ParemeterEstimation:
             })
             data = pd.concat([df1, data.loc[1:]], axis=0, ignore_index=True)
 
-        data[col_temp] = data[col_temp].fillna(data[col_temp].mean())
-        data[col_uia] = data[col_uia].astype("float")
-        data[col_uia] = data[col_uia].fillna(data[col_uia].mean())
-        data[col_do] = data[col_do].fillna(data[col_do].mean())
+        # data[col_temp] = data[col_temp].fillna(data[col_temp].mean())
+        # data[col_uia] = data[col_uia].astype("float")
+        # data[col_uia] = data[col_uia].fillna(data[col_uia].mean())
+        # data[col_do] = data[col_do].fillna(data[col_do].mean())
 
-        self.df = data[data[col_abw].notna()].reset_index(drop=True)
+        # self.df = data[data[col_abw].notna()].reset_index(drop=True)
         
         self.wt_min_1 = 0
         self.biomass_min_1 = 0
