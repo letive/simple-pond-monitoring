@@ -4,6 +4,7 @@ from scipy.optimize import curve_fit
 from scipy.interpolate import CubicSpline
 from lib.helpers_mod.helpers import integrate_function, generate_interpolate_function
 from scipy.integrate import quad
+import re
 
 class ParemeterEstimation:
     
@@ -15,10 +16,14 @@ class ParemeterEstimation:
             self.df = df
         else:
             self.df = pd.read_csv(path, sep=sep)
+
+        cols = [re.sub(" ", "", i) for i in self.df.columns]
+        self.df.columns = cols
+        self.df.replace("#DIV/0!", 0, inplace=True)
         
         self.df = self.df[[col_doc, col_temp, col_uia, col_do, col_abw]]
-
-        if 1 not in self.df[col_doc].tolist():
+        
+        if 1 not in self.df[col_doc].tolist() or (str(self.df[col_abw][0]).isnumeric() == False):
             df1 = pd.DataFrame({
                 col_doc:[1],
                 col_temp: [np.nan],
@@ -26,9 +31,10 @@ class ParemeterEstimation:
                 col_do: [np.nan],
                 col_abw: [0.05]
             })
-            self.df = pd.concat([df1, self.df], axis=0, ignore_index=True)
+            self.df = pd.concat([df1, self.df.loc[1:]], axis=0, ignore_index=True)
 
         self.df[col_temp] = self.df[col_temp].fillna(self.df[col_temp].mean())
+        self.df[col_uia] = self.df[col_uia].astype("float")
         self.df[col_uia] = self.df[col_uia].fillna(self.df[col_uia].mean())
         self.df[col_do] = self.df[col_do].fillna(self.df[col_do].mean())
 
