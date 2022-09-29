@@ -134,6 +134,8 @@ def base_section():
 
             weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
 
+            print(model.df["DOC"].tolist())
+            
             option = LineForecast("Shrimp Growth Forecast", model.df["DOC"].tolist() + doc[1:], 
                 [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"],
             base_color="#3AAE8E",forecast_color="#fb0166" ).plot()
