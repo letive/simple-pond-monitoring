@@ -143,5 +143,7 @@ def base_section():
             option["yAxis"]["nameGap"] = 50
             option["series"][0]["smooth"] = True
             st_echarts(options=option)
+
+            st.code(str(option), language="json")
         else:
             st.error("Error. Maybe your T not in range or your range of prediction more than 2 weeks")
