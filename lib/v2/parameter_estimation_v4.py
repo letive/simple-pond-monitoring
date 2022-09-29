@@ -40,6 +40,7 @@ class ParemeterEstimation:
         data[col_uia] = data[col_uia].fillna(data[col_uia].mean())
         data[col_do] = data[col_do].fillna(data[col_do].mean())
 
+        print(data)
         self.df = data.copy()
 
         # self.df = data[data[col_abw].notna()].reset_index(drop=True)
