@@ -135,7 +135,7 @@ def base_section():
 
             weight = model_test.weight(doc, alpha[0], alpha[1], alpha[2], alpha[3])
 
-            st.write(model.df["DOC"].tolist())
+            st.write(model.df)
 
             option = LineForecast("Shrimp Growth Forecast", origin_doc, 
                 [model.df["ABW"].tolist() + weight[1:] ], len(model.df["DOC"].tolist()), labels=["value"],
