@@ -13,19 +13,19 @@ class ParemeterEstimation:
             col_doc="DOC", col_abw="ABW", col_adg="ADG"):
 
         if type(df) == pd.DataFrame:
-            self.df = df
+            data = df
         else:
-            self.df = pd.read_csv(path, sep=sep)
+            data = pd.read_csv(path, sep=sep)
         
-        self.df.reset_index(drop=True, inplace=True)
+        data.reset_index(drop=True, inplace=True)
 
-        cols = [re.sub(" ", "", i) for i in self.df.columns]
-        self.df.columns = cols
-        self.df.replace("#DIV/0!", 0, inplace=True)
+        cols = [re.sub(" ", "", i) for i in data.columns]
+        data.columns = cols
+        data.replace("#DIV/0!", 0, inplace=True)
         
-        self.df = self.df[[col_doc, col_temp, col_uia, col_do, col_abw]]
+        data = data[[col_doc, col_temp, col_uia, col_do, col_abw]]
         
-        if (str(self.df[col_abw][0]).isnumeric() == False):
+        if (str(data[col_abw][0]).isnumeric() == False):
             df1 = pd.DataFrame({
                 col_doc:[1],
                 col_temp: [np.nan],
@@ -33,14 +33,14 @@ class ParemeterEstimation:
                 col_do: [np.nan],
                 col_abw: [0.05]
             })
-            self.df = pd.concat([df1, self.df.loc[1:]], axis=0, ignore_index=True)
+            data = pd.concat([df1, data.loc[1:]], axis=0, ignore_index=True)
 
-        self.df[col_temp] = self.df[col_temp].fillna(self.df[col_temp].mean())
-        self.df[col_uia] = self.df[col_uia].astype("float")
-        self.df[col_uia] = self.df[col_uia].fillna(self.df[col_uia].mean())
-        self.df[col_do] = self.df[col_do].fillna(self.df[col_do].mean())
+        data[col_temp] = data[col_temp].fillna(data[col_temp].mean())
+        data[col_uia] = data[col_uia].astype("float")
+        data[col_uia] = data[col_uia].fillna(data[col_uia].mean())
+        data[col_do] = data[col_do].fillna(data[col_do].mean())
 
-        self.df = self.df[self.df[col_abw].notna()]
+        self.df = data[data[col_abw].notna()].reset_index(drop=True)
         
         self.wt_min_1 = 0
         self.biomass_min_1 = 0
