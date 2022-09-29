@@ -73,6 +73,8 @@ def base_section():
             root_df = pd.read_csv(df, sep=separator)
         except:
             root_df = pd.read_csv("data/data_test_01.csv")
+        
+        print(root_df)
         cycle = get_cycle_range(root_df)
         alpha1 = []
         alpha2 = []
@@ -163,6 +165,7 @@ def base_section():
         with sec_1_col2:
             option_bio = Line("Biomass", list(range(T)), [biomass.tolist()], labels=["Biomassa (kg)"]).plot()
             option_bio["color"] = ["#3AAE8E", "#fb0166"]
+            option_bio["series"][0]["areaStyle"] = {}
             # st_echarts(options=option_bio)
 
         harvest_pops = []
@@ -185,17 +188,11 @@ def base_section():
         )
 
         price["size"] = price["size"].apply(lambda x: int(x.split("_")[1]))
-
-        rbio = []
-        for i in range(T):
-            rbio.append(
-                pond_remaining_biomass(i, weight[i], n0, m, ph, doc, gamma, model_test.f_nh4, nh3_lim)
-            )
         
         hbio = []
         for i in range(T):
             hbio.append(
-                harvested_biomass(i, weight[i], n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)
+                harvested_biomass(i, weight[i], n0, m, ph, doc, final_doc, gamma, model_test.f_nh4, nh3_lim)/1000
             )
         
         data_to_interpolate = price.groupby("size").mean()
@@ -213,7 +210,7 @@ def base_section():
         for i, j in enumerate(weight):
             price = f(1000/j)
             tetha = heaviside_step(price)
-            potential_revenue.append((rbio[i] * tetha * price))
+            potential_revenue.append((biomass[i] * tetha * price))
 
 
         ########
@@ -221,7 +218,7 @@ def base_section():
         ########
 
         # harvested cost
-        cost_harvest = np.array(hbio)*h
+        cost_harvest = np.array(hbio)*h*area
 
         # energy cost
         cost_energy = np.ones(T)*e*820*24
@@ -239,24 +236,29 @@ def base_section():
         cost_bonuss = bonus * np.array(hbio)
 
         # feed cost
-        cost_feed = np.array([feeding_expense(i, fc, biomass[i], final_doc, formula, r) for i in range(T)])
+        cost_feed = np.array([feeding_expense(i, fc, biomass[i]*1000, final_doc, formula, r) for i in range(T)])*area
 
         all_data_cost = np.array([cost_harvest, cost_energy, cost_probiotics, cost_other, cost_labor, cost_bonuss, cost_feed])
-        daily_cost = all_data_cost.sum(axis=0)
+        daily_cost = np.cumsum(all_data_cost.sum(axis=0))
 
         profit = realized_revenue - daily_cost
 
-        # option_revenue = Line("Revenue", list(range(T)), 
-        #         [potential_revenue, realized_revenue.tolist(), profit.tolist()], 
-        #         labels=["potential", "realized", "profit"], 
-        #         legend=True).plot()
-
-        option_revenue = Line("Revenue", list(range(T)), 
-                [potential_revenue, realized_revenue.tolist()], 
-                labels=["potential", "realized"], 
+        option_revenue = Line("Financial", list(range(T)), 
+                [potential_revenue, realized_revenue.tolist(), profit.tolist(), daily_cost.tolist()], 
+                labels=["potential", "realized", "profit", "cost"], 
                 legend=True).plot()
 
-        option_revenue["color"] = ["#3AAE8E", "#fb0166", "#3963ff"]
+        option_revenue["color"] = ["#3AAE8E", "#fb0166", "#3963ff", "#af613a"]
+        option_revenue["grid"] = {
+            "left": "5%",
+            "containLabel": True
+        }
+        option_revenue["xAxis"]["name"] = "DOC"
+        option_revenue["xAxis"]["nameLocation"] = "center"
+        option_revenue["xAxis"]["nameGap"] = 30
+        option_revenue["yAxis"]["name"] = "Total (Rp)"
+        option_revenue["yAxis"]["nameLocation"] = "middle"
+        option_revenue["yAxis"]["nameGap"] = 100
 
         dataviz = [
             {
@@ -283,12 +285,23 @@ def base_section():
             }
         ]
 
-        cost_option = Pie(title="Cost", data=dataviz, douhgnut=True, legend=True).plot()
+        cost_option = Pie(title="Cost", data=dataviz, douhgnut=True, legend=False).plot()
+        cost_option["grid"] = {
+            "bottom": "50%"
+        }
 
+        # cost_option["legend"] = {
+        #     "bottom": "2%",
+        # }
 
-        vis_col1, vis_col2 = st.columns((3,1))
+        # cost_option["series"][0]["labelLine"] = {
+        #     "show": False,
+        # }
+
+        st_echarts(options=option_revenue)
+
+        vis_col1, vis_col2 = st.columns((2,3))
         with vis_col1:
-            st_echarts(options=option_revenue)
-        
+            st_echarts(options=cost_option)        
         with vis_col2:
-            st_echarts(options=cost_option)
+            st_echarts(options=option_bio)
