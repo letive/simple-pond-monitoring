@@ -4,6 +4,7 @@ from controllers.parameter_estimation_v4 import base_section as bs1
 from controllers.shrimp_weight import base_section as bs2
 from controllers.unit_economic_model import base_section as bs3
 from controllers.main import base_section as bs4
+from controllers.feeding import base_section as bs5
 import streamlit as st
 from streamlit_echarts import st_echarts
 
@@ -26,5 +27,7 @@ elif menu == "Model Validation":
     bs1()
 elif menu == "Shrimp Growth Forecasting":
     bs2()
+elif menu == "Feed Management":
+    bs5()
 else:
     bs3()
