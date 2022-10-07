@@ -9,9 +9,9 @@ def base_section():
     st.set_page_config(layout="wide")
     
     t0 = st.sidebar.number_input("t0", value=0)
-    sr = st.sidebar.number_input("survival rate", value=0.92)
-    n0 = st.sidebar.number_input("n0", value=100)
-    T = st.sidebar.number_input("T", value=120)
+    sr = st.sidebar.number_input("survival rate", value=0.80)
+    n0 = st.sidebar.number_input("density", value=100)
+    T = st.sidebar.number_input("final doc", value=120)
         
     area = st.sidebar.number_input("area", value=1000)
     alpha = st.sidebar.number_input("alpha (shrimp growth rate)", value=1.0, step=1.,format="%.2f")/100 
@@ -20,16 +20,16 @@ def base_section():
     wn = st.sidebar.number_input("wn", value=45)
 
     partial1 = st.sidebar.number_input("partial1", value=0.1)
-    partial2 = st.sidebar.number_input("partial2", value=0.1)
-    partial3 = st.sidebar.number_input("partial3", value=0.1)
+    partial2 = st.sidebar.number_input("partial2", value=0.15)
+    partial3 = st.sidebar.number_input("partial3", value=0.15)
     
-    docpartial1 = int(st.sidebar.number_input("doc partial 1", value=60))
-    docpartial2 = int(st.sidebar.number_input("doc partial 2", value=70))
-    docpartial3 = int(st.sidebar.number_input("doc partial 3", value=80))
+    docpartial1 = int(st.sidebar.number_input("doc partial 1", value=70))
+    docpartial2 = int(st.sidebar.number_input("doc partial 2", value=80))
+    docpartial3 = int(st.sidebar.number_input("doc partial 3", value=90))
     docfinal = int(st.sidebar.number_input("doc final", value=120))
 
     e = st.sidebar.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
-    p = st.sidebar.number_input("daily probiotics", value=120000)
+    p = st.sidebar.number_input("daily probiotics", value=50000)
     o = st.sidebar.number_input("others cost", value=30000)
     labor = st.sidebar.number_input("labor cost", value=2000000)/30
     bonus = st.sidebar.number_input("bonus", value=2000)
