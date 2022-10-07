@@ -24,12 +24,12 @@ def base_section():
 
     temp_suitable_min, temp_optimal_min, temp_optimal_max, temp_suitable_max = 25, 28, 32, 33
     uia_suitable_min, uia_optimal_min, uia_optimal_max, uia_suitable_max = 0, 0, 0.01, 0.02
-    do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max = 4, 6, 9, 10
+    do_suitable_min, do_optimal_min, do_optimal_max, do_suitable_max = 3, 4, 9, 10
 
     cost_expander = st.sidebar.expander("Cost Parameters")
     
     e = cost_expander.number_input("energy day cost", value=4.0, step=1.,format="%.2f")
-    p = cost_expander.number_input("daily probiotics", value=120000)
+    p = cost_expander.number_input("daily probiotics", value=50000)
     o = cost_expander.number_input("others cost", value=30000)
     labor = cost_expander.number_input("labor cost", value=2000000)/30
     bonus = cost_expander.number_input("bonus", value=2000)
@@ -39,7 +39,7 @@ def base_section():
     formula = cost_expander.selectbox("formula", (1, 2))
 
     pop_expander = st.sidebar.expander("Population Parameter")
-    n0 = pop_expander.number_input("N0", value=1000)
+    n0 = pop_expander.number_input("N0", value=100000)
     area = pop_expander.number_input("Area", value=1000)
 
     ph = pop_expander.text_input("Total partial harvest (use comma to separate your value)", value="10, 10, 10")
@@ -53,7 +53,7 @@ def base_section():
     final_doc = pop_expander.number_input("Final DOC", value=105)
 
     gamma = pop_expander.number_input("Gamma", value=0.02)
-    sr = pop_expander.number_input("Survival Rate", value=0.92)
+    sr = pop_expander.number_input("Survival Rate", value=0.80)
     nh3_lim = pop_expander.number_input("NH3 Limit", value=2.78)
 
     # cost_energy = 4
