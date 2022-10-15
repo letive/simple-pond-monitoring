@@ -12,7 +12,7 @@ sidebar_head()
 # header_title()
 menu = sidebar_menu()
 
-if menu == "Main":
+if menu == "Farm Economic":
     st.title("Metamorf Dashboard")
     bs4()
 
