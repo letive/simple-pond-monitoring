@@ -53,5 +53,5 @@ def sidebar_head():
     st.sidebar.markdown('---')
 
 def sidebar_menu():
-    menu = st.sidebar.selectbox("Select Menu", ["Main", "Model Validation", "Shrimp Growth Forecasting", "Unit Economic Model", "Feed Management"])
+    menu = st.sidebar.selectbox("Select Menu", ["Farm Economics", "Model Validation", "Shrimp Growth Forecasting", "Unit Economic Model", "Feed Management"])
     return menu
